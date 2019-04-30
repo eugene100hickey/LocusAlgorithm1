@@ -1,0 +1,584 @@
+\documentclass[]{elsarticle} %review=doublespace preprint=single 5p=2 column
+%%% Begin My package additions %%%%%%%%%%%%%%%%%%%
+\usepackage[hyphens]{url}
+
+  \journal{Astronomy \& Astrophysics} % Sets Journal name
+
+
+\usepackage{lineno} % add
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\bibliographystyle{elsarticle-harv}
+\biboptions{sort&compress} % For natbib
+\usepackage{graphicx}
+\usepackage{booktabs} % book-quality tables
+%%%%%%%%%%%%%%%% end my additions to header
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \usepackage{fontspec}
+  \ifxetex
+    \usepackage{xltxtra,xunicode}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+\usepackage{longtable}
+\usepackage{graphicx}
+% We will generate all images so they have a width \maxwidth. This means
+% that they will get their normal width if they fit onto the page, but
+% are scaled down if they would overflow the margins.
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+\else\Gin@nat@width\fi}
+\makeatother
+\let\Oldincludegraphics\includegraphics
+\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={},
+            pdftitle={The Locus Algorithm},
+            colorlinks=false,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+\setcounter{secnumdepth}{0}
+% Pandoc toggle for numbering sections (defaults to be off)
+\setcounter{secnumdepth}{0}
+% Pandoc header
+
+
+
+\begin{document}
+\begin{frontmatter}
+
+  \title{The Locus Algorithm}
+    \author[Dublin Institute for Advanced Studies]{O. Creaner\corref{c1}}
+   \ead{creanero@cp.dias.ie} 
+   \cortext[c1]{Corresponding Author}
+    \author[Technological University Dublin]{E. Hickey}
+   \ead{eugene.hickey@it-tallaght.ie} 
+  
+    \author[Technological University Dublin]{K.Nolan}
+   \ead{kevin.nolan@it-tallaght.ie} 
+  
+    \author[Cork Institute of Technology]{N.Smith}
+   \ead{nsmith@cit.ie} 
+  
+      \address[Dublin Institute for Advanced Studies]{Dublin Institute for Advanced Studies, 31 Fitzwilliam Place, Dublin 2,
+Ireland}
+    \address[Technological University Dublin]{Technological University Dublin, Tallaght Campus, Dublin 24, Ireland}
+    \address[Cork Institute of Technology]{Cork Institute of Technology, Bishopstown, Cork, Ireland}
+  
+  \begin{abstract}
+  We describe the design, implementation and operation of a new algorithm,
+  The Locus Algorithm; which enables optimised differential photometry.
+  For a given target, The Locus Algorithm identifies the pointing for
+  which the resultant FoV includes the target and the maximum number of
+  similar reference stars available, thus enabling optimised differential
+  photometry of the target. We describe the application of The Locus
+  Algorithm to a target from the Sloan Digital Sky Survey to provide
+  optimum differential photometry for that target. The algorithm was also
+  used to generate catalogues of pointing's to optimise Quasars
+  variability studies and to generate catalogues of optimised pointings in
+  the search for Exoplanets via the transit method.
+  \end{abstract}
+  
+ \end{frontmatter}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Photometric variability studies involve identifying variations in
+brightness of a celestial point source over time. Such studies are
+hampered by the Earth's atmosphere, which causes first order and second
+order extinction Milone and Pel (2011) YOUNG et al. (1991). Differential
+Photometry mitigates the effect of the Earth's atmosphere by comparing
+the brightness of a target to reference stars in the same Field of View
+(FoV). Differential photometry can be optimised for the target by
+choosing a pointing whose Field of View (FoV) includes the target and
+the maximum number of reference stars of similar magnitude and colour.
+Milone and Pel (2011) YOUNG et al. (1991) Howell and B. (2000) Honeycutt
+(1992).
+
+The Locus Algorithm enables optimised differential photometry by
+identifying the pointing for which the resultant FoV includes the target
+and the best set of similar reference stars available.
+
+\hypertarget{conceptual-basis-to-the-locus-algorithm}{%
+\section{Conceptual basis to The Locus
+Algorithm}\label{conceptual-basis-to-the-locus-algorithm}}
+
+A locus can be defined around any star such that a FoV centred on any
+point on the locus will include the star at the edge of the FoV. For
+fields containing stars close to one another, if one locus intersects
+with another, they produce Points of Intersection (PoIs) (Figure 1).
+
+\begin{figure}
+\centering
+\includegraphics{fig1.png}
+\caption{Figure 1. Diagrammatic representation of two stars with loci
+(red and blue perimeter lines), which intersect and produce two Points
+of Intersection (PoI's) circled in yellow.}
+\end{figure}
+
+A FoV centred on any such PoI will include both stars associated with
+creating it. At Points of Intersection the set of stars that can be
+included in a FoV changes.
+
+The Locus Algorithm considers candidate reference stars in what is
+termed a Candidate Zone (CZ) - the zone of sky centred on the target
+within which a FoV can be selected which includes both the reference
+star and the target. Within the Candidate Zone, all relevant Points of
+Intersection are identified. Each PoI is assigned a score derived from
+the number and similarity of reference stars included in it's resulting
+FoV. The PoI with the highest score becomes the pointing for the target.
+
+\hypertarget{locus-algorithm-design}{%
+\section{Locus Algorithm Design}\label{locus-algorithm-design}}
+
+\hypertarget{definition-of-coordinate-system-and-locus}{%
+\subsection{Definition of Coordinate System and
+Locus}\label{definition-of-coordinate-system-and-locus}}
+
+For computational efficiency, The Locus Algorithm considers a Field of
+View to be a rectangular area on the sky orientated such that the edges
+are aligned with the primary x and y axes of the Cartesian coordinate
+system. Movement of the field is restricted to x or y translations.
+
+However, the Celestial coordinate system is defined by the Equatorial
+coordinate system, with coordinates specified by Right Ascension (RA)
+and Declination (Dec). Because this is a spherical coordinate system,
+unit angle in RA is foreshortened, with the degree of foreshortening
+defined by:
+
+\[angle \in RA = {\frac{True Angle}{cosine(Dec)}} \tag{Equation 1: Right Ascension foreshortening with Declination}\]
+
+By using this conversion, it is possible to approximate to a high degree
+of accuracy a Cartesian coordinate system using RA and Dec; with a small
+FoV of horizontal size R and vertical size S about a star located at
+point \(RA_c\) and \(Dec_c\) , where
+
+\[R^` = {\frac{R}{cos(Dec_c)}}\] as:
+
+\[RA_c - {\frac{R^`}{2}} \leq RA \leq RA_c + {\frac{R^`}{2}} \]
+
+\[Dec_c - {\frac{S}{2}} \leq Dec \leq Dec_c + {\frac{S}{2}}\]
+
+Equation 2. Definition of a FoV of size R x S centred on a point
+(\(RA_c\) , \(Dec_c\))
+
+This definition is accurate to approximately 1\% for a FoV of area 15'
+square outside celestial polar regions; and does not consider RA ``loop
+around'' from 359.99\(^{\circ}\) to 0.00\(^{\circ}\); resulting, for
+example, in the exclusion of 0.23\% of the SDSS catalogue. Planned
+enhancements to The Locus Algorithm will resolve these shortcomings.
+
+We can therefore define the locus about any star on the sky located at
+\(RA_c\) and \(Dec_c\) as the values of Right Ascension and Declination
+as defined in Equation 2.
+
+\hypertarget{candidate-zone}{%
+\subsection{Candidate Zone}\label{candidate-zone}}
+
+A Candidate Zone is defined as a region centred on the target, equal to
+four times the area of any Field of View (Equation 3), within which any
+reference star can be included in a Field of View with the target and
+can therefore be considered as a candidate reference star in identifying
+the optimum pointing. Conversely, stars outside the candidate zone
+cannot be included in a Field of View with the target and cannot
+therefore be considered as candidates reference stars. Hence the
+Candidate Zone is the maximum region of sky centred on the target from
+which to choose candidate reference stars when identifying an optimum
+pointing for a given target. For a target positioned at coordinates
+\(RA_c\) and \(Dec_c\) the resulting Candidate Zone is defined by:
+
+\[RA_c - R^` \leq RA \leq RA_c + R^` \]
+
+\[Dec_c - S \leq Dec \leq Dec_c + S\]
+
+Equation 3. Definition of a Candidate Zone of size 2R x 2S centred on a
+target with coordinates (\(RA_c\), \(Dec_c\))
+
+\begin{figure}
+\centering
+\includegraphics{fig2.png}
+\caption{Figure 2. Modified image taken from the SDSS ``Navigate'' tool.
+The image showing fields (in red) needed to form a mosaic from which a
+Candidate Zone (green) centred on the target can be defined.}
+\end{figure}
+
+\hypertarget{identification-and-filtering-of-reference-stars}{%
+\subsection{Identification and Filtering of Reference
+Stars}\label{identification-and-filtering-of-reference-stars}}
+
+For each target, a list of candidate reference stars in its Candidate
+Zone is produced based on the following criteria:
+
+\begin{itemize}
+\tightlist
+\item
+  Position: the reference star must be in the Candidate Zone.
+\item
+  Magnitude: the reference star must be within a user-defined limit of
+  the target's magnitude.
+\item
+  Colour: the reference star must match the colour of the target to
+  within a user-specified limit.
+\item
+  Resolvability: the reference star must be resolvable, i.e.~no other
+  star that would impact a brightness measurements within a
+  user-specified resolution limit.
+\end{itemize}
+
+All stars in the Candidate Zone which pass these initial filters become
+the list of candidate reference stars from which loci will be
+identified.
+
+\hypertarget{identifying-the-effective-locus-for-each-candidate-reference-star}{%
+\subsection{Identifying the Effective Locus for each Candidate Reference
+Star}\label{identifying-the-effective-locus-for-each-candidate-reference-star}}
+
+The locus associated with each candidate reference star must be
+identified based on Equation 2. For the purposes of identifying Points
+of Intersection, only the side surrounding a given candidate reference
+star closest to the target need be considered. Hence, we can define the
+effective locus for such a candidate reference star as a single line of
+constant RA and a single line of constant Dec nearest the target star
+(Figure 3).
+
+\begin{figure}
+\centering
+\includegraphics{fig3.png}
+\caption{Figure 3: Each effective locus is defined by assigning a pair
+of RA and Dec coordinates for a corner point and a pair of lines North
+or South and East or West from the corner point. In this diagram, each
+candidate reference star is assigned a colour, and the effective locus
+that corresponds to it is drawn in the same colour.}
+\end{figure}
+
+Specifically, the effective locus can be defined as a corner point of
+the locus and two lines: one of constant RA and the other of constant
+Dec emanating from the corner point. The direction of the lines is
+determined by the Right Ascension and Declination of the candidate
+reference star relative to the target; as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  If the RA of the candidate is greater than the target, the line of
+  constant Dec is drawn in the direction of increasing RA
+\item
+  If the RA of the candidate is less than the target, the line of
+  constant Dec is drawn in the direction of decreasing RA
+\item
+  If the Dec of the candidate is greater than the target, the line of
+  constant RA is drawn in the direction of increasing Dec
+\item
+  If the Dec of the candidate is less than the target, the line of
+  constant RA is drawn in the direction of decreasing Dec.
+\end{itemize}
+
+Using the Equatorial Coordinate System discussed in Section 3.1, with
+coordinates of the target specified by \((RA_{target}, Dec_{target})\)
+and coordinates of the candidate reference star defined by
+\((RA_{reference}, Dec_{reference})\) and a size of FoV of horizontal
+length R and vertical length S, the coordinates of the corner point
+\((RA_{corner-point}, Dec_{corner-point})\) are defined as:
+
+\[RA_{target} \leq RA_{reference} \Rightarrow RA_{corner-point} = RA_{reference}- R^` \]
+
+\[RA_{target} > RA_{reference} \Rightarrow RA_{corner-point} = RA_{reference}+ R^` \]
+
+\[Dec_{target} \leq Dec_{reference} \Rightarrow Dec_{corner-point} = Dec_{reference}- {\frac{S}{2}} \]
+
+\[Dec_{target} > Dec_{reference} \Rightarrow Dec_{corner-point} = Dec_{reference} + {\frac{S}{2}}\]
+
+The direction of the lines of constant RA and Dec of the effective locus
+emanating from any such corner point are determined according to the
+criteria describe above.
+
+\hypertarget{identifying-and-scoring-points-of-intersection-and-identifying-the-pointing.}{%
+\subsection{Identifying and Scoring Points of Intersection and
+identifying the
+pointing.}\label{identifying-and-scoring-points-of-intersection-and-identifying-the-pointing.}}
+
+The points where lines from any two loci are identified. This involves
+comparing the corner point RA and Dec and direction of lines for one
+locus with the corner point RA and Dec and direction of lines for a
+second locus. In total eight variable associated with each two loci are
+checked:
+
+\begin{itemize}
+\tightlist
+\item
+  For Locus 1: \(RA_1\), \(Dec_1\), \(DirRA_1\), \(DirDec_1\)
+\item
+  For Locus 2: \(RA_2\), \(Dec_2\), \(DirRA_2\), \(DirDec_2\)
+\end{itemize}
+
+Using these parameters, a check as to whether an intersection between
+the two loci occurs is achieved as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  A line of constant Dec in the positive RA direction from the corner
+  point of locus 1 will intersect with a line of constant RA in the
+  positive Dec direction from the corner point of locus 2 if locus 1 has
+  a lower RA than locus 2 and locus 1 has a higher Dec than locus 2.
+\item
+  A line of constant RA in the positive Dec direction from the corner
+  point of locus 1 will intersect with a line of constant Dec in the
+  positive RA direction from the corner point of locus 2 if locus 1 has
+  a lower Dec than locus 2 and locus 1 has a higher RA than locus 2.
+\end{itemize}
+
+\ldots{} and so on. By checking all such possible combinations, all
+pairs of loci in the field which result in a Point of Intersection are
+identified and their RA and Dec noted.
+
+Subsequent to identification, each Point of Intersection is then scored.
+This is achieved as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  The number of reference stars in the Field of View centred on the
+  Point of Intersection is counted.
+\item
+  Each reference star is assigned a rating value between 0 and 1 based
+  on its similarity in colour to the target.
+\item
+  The ratings from all counted reference stars in the Field of View are
+  combined into one overall score for the field (Figure 4).
+\item
+  The Point of Intersection with the highest score becomes the pointing
+  for the target (Figure 5).
+\end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics{fig4.png}
+\caption{Figure 4. Points of Intersection (PoI), and their associated
+score. In this diagram each star has a rating of 1, hence the score
+associated with each PoI is equal to the number of reference stars
+within a FoV centred at that PoI.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{fig5.png}
+\caption{Figure 5: Locus Algorithm. Target: white star. Pointing \& FoV:
+blue. Reference stars and their loci: Fully in the FoV: greens. On the
+edge of the FoV: yellows. Outside FoV: reds}
+\end{figure}
+
+Scenarios can arise which result in an inability to identify an optimum
+pointing for a given target for example if there are no, or a maximum of
+one reference stars in the candidate zone; and if no points of
+intersection arise -- a scenario which can arise if two (or more)
+reference fall in one quadrant of the candidate zone resulting in
+concentric loci, or where reference stars are too far apart in different
+quadrants of the candidate zone in order for their loci to intersect.
+All four of these scenarios are considered in practical implementations
+of the locus algorithm aimed at identifying the optimum pointings for a
+set of targets in a catalogue or list of targets.
+
+In summary, the Locus Algorithm successfully identifies the RA and Dec
+coordinates of the optimum pointing for a given target, where optimum
+means a field of view with the maximum number of reference stars which
+are similar in magnitude and colour to the target.
+
+\newpage
+
+\hypertarget{example-implementation-of-the-locus-algorithm}{%
+\section{Example Implementation of the Locus
+Algorithm}\label{example-implementation-of-the-locus-algorithm}}
+
+To illustrate the workings of the Locus Algorithm, a worked example is
+given here. The star with SDSS ID 1237680117417115655 (RA = 346.65 and
+DEC = -5.04) is used as the example. This star has SDSS magnitudes as
+given in the table below.
+
+\begin{longtable}[]{@{}lr@{}}
+\toprule
+Band & SDSS\_Magnitude\tabularnewline
+\midrule
+\endhead
+u & 17.20\tabularnewline
+g & 15.38\tabularnewline
+r & 14.65\tabularnewline
+i & 14.40\tabularnewline
+z & 14.28\tabularnewline
+\bottomrule
+\end{longtable}
+
+The telescope system considered has parameters given in the table below:
+
+\begin{longtable}[]{@{}lr@{}}
+\toprule
+Parameters & Values\tabularnewline
+\midrule
+\endhead
+Field of View in minutes & 10.00\tabularnewline
+Resolution Limit in minutes & 0.18\tabularnewline
+Dynamic Range in magnitudes & 2.00\tabularnewline
+\bottomrule
+\end{longtable}
+
+The potential reference stars are selected as follows:
+
+\begin{itemize}
+\tightlist
+\item
+  Position: Within the Candidate Zone, SDSS records 1345 separate
+  objects.
+\item
+  Magnitude: the reference star must be within the dynamic range, 2, of
+  the target's magnitude of 14.648. This leaves 41 potential references.
+\item
+  Colour: the reference star must match the colour of the target to
+  within a user-specified limit. In this case this means \(g - r\)
+  between 0.634 and 0.834 and \(r - i\) between 0.149 and 0.349 This
+  leaves 15 potential references.
+\item
+  Resolvability: the reference star must be resolvable, i.e.~no other
+  star that would impact a brightness measurements within a
+  user-specified resolution limit, in this case 11 arc seconds. Any
+  object this close to a potential reference star and with an r-band
+  magnitude which is 5 magnitudes greater than the potential reference
+  or brighter will pollute the light from the potential reference star.
+  This leaves 14 potential references.
+\end{itemize}
+
+After checking different fields of view, a pointing with RA = 346.65 and
+DEC = -5.12 included both the target and 7 reference stars. These
+numbers are presented in the table below.
+
+\begin{longtable}[]{@{}lr@{}}
+\toprule
+filters & numbers\tabularnewline
+\midrule
+\endhead
+Position, in Field of View & 1345\tabularnewline
+Correct Magnitude & 41\tabularnewline
+Correct Colour & 15\tabularnewline
+Resolvable & 14\tabularnewline
+In Final Field of View & 7\tabularnewline
+\bottomrule
+\end{longtable}
+
+\newpage
+
+The SQL query to download potential reference stars from SDSS is given
+below. This SQL query is run on the CAS database, release DR15, of SDSS.
+Note the flags to give clean photometry (Aguado et al. (2018))
+
+SELECT objID, ra, dec, psfmag\_u, psfmag\_g, psfmag\_r, psfmag\_i,
+psfmag\_z\\
+FROM photoObj\\
+WHERE (ra between ( 346.48270496969 ) AND ( 346.817331746246 )\\
+OR ra BETWEEN ( 706.48270496969 ) AND ( 706.817331746246 )\\
+OR ra BETWEEN ( -13.5172950303096 ) AND ( -13.1826682537544 ))\\
+AND dec BETWEEN ( -5.20597532982638 ) AND ( -4.87264199649304 )\\
+AND psfmag\_r BETWEEN 12.64849 AND 16.64849\\
+AND (psfmag\_g - psfmag\_r) BETWEEN ( 0.633989999999999 ) AND (
+0.833989999999999 )\\
+AND (psfmag\_r - psfmag\_i) BETWEEN ( 0.149080000000001 ) AND (
+0.349080000000001 )\\
+AND clean = 1\\
+AND (calibStatus\_r \& 1) != 0
+
+A table with the reference stars in the final field of view is given
+below:
+
+\begin{longtable}[]{@{}lrrrrrrrr@{}}
+\toprule
+objID & ra & dec & mag\_u & mag\_g & mag\_r & mag\_i & mag\_z &
+ratings\tabularnewline
+\midrule
+\endhead
+1237680117417050120 & 346.563 & -5.153 & 18.460 & 16.498 & 15.771 &
+15.533 & 15.397 & 0.830\tabularnewline
+1237680117417050133 & 346.594 & -5.161 & 16.702 & 14.825 & 14.068 &
+13.887 & 13.648 & 0.241\tabularnewline
+1237680117417115655 & 346.650 & -5.039 & 17.199 & 15.382 & 14.648 &
+14.399 & 14.281 & 1.000\tabularnewline
+1237680117417115762 & 346.676 & -5.120 & 18.920 & 17.022 & 16.282 &
+15.974 & 15.851 & 0.380\tabularnewline
+1237680065348435996 & 346.707 & -5.199 & 16.704 & 14.699 & 13.905 &
+13.676 & 13.515 & 0.322\tabularnewline
+1237680117417115683 & 346.713 & -5.050 & 17.585 & 15.782 & 15.109 &
+14.867 & 14.798 & 0.361\tabularnewline
+1237680117417115692 & 346.724 & -5.047 & 18.362 & 16.576 & 15.843 &
+15.568 & 15.464 & 0.734\tabularnewline
+\bottomrule
+\end{longtable}
+
+\includegraphics{Locus_Whole_files/figure-latex/locus_plot-1.pdf}
+
+\newpage
+
+\hypertarget{references}{%
+\subsection*{References}\label{references}}
+\addcontentsline{toc}{subsection}{References}
+
+\hypertarget{refs}{}
+\leavevmode\hypertarget{ref-Aguado2018}{}%
+Aguado, D. S., Romina Ahumada, Andres Almeida, Scott F. Anderson, Brett
+H. Andrews, Borja Anguiano, Erik Aquino Ortiz, et al. 2018. ``The
+Fifteenth Data Release of the Sloan Digital Sky Surveys: First Release
+of MaNGA Derived Quantities, Data Visualization Tools and Stellar
+Library,'' December. \url{https://doi.org/10.3847/1538-4365/aaf651}.
+
+\leavevmode\hypertarget{ref-Honeycutt1992}{}%
+Honeycutt, R. K. 1992. ``CCD ensemble photometry on an inhomogeneous set
+of exposures.'' \emph{Publications of the Astronomical Society of the
+Pacific} 104 (676). IOP Publishing: 435.
+\url{https://doi.org/10.1086/133015}.
+
+\leavevmode\hypertarget{ref-Howell2000}{}%
+Howell, Steve B., and Steve B. 2000. ``Handbook of CCD Astronomy.''
+\emph{Handbook of CCD Astronomy / Steve B. Howell. Cambridge, U.K. ; New
+York : Cambridge University Press, C2000. (Cambridge Observing Handbooks
+for Research Astronomers ; 2)}.
+\url{http://adsabs.harvard.edu/abs/2000hccd.book.....H}.
+
+\leavevmode\hypertarget{ref-Milone2011}{}%
+Milone, E. F., and Jan Willem Pel. 2011. ``The High Road to Astronomical
+Photometric Precision: Differential Photometry.'' In \emph{Astronomical
+Photometry: Past, Present, and Future, Edited by E.f. Milone and c.
+Sterken. Astrophysics and Space Science Library, Vol. 373. Berlin:
+Springer, 2011. ISBN 978-1-4419-8049-6, P. 33-68}, 373:33--68.
+\url{https://doi.org/10.1007/978-1-4419-8050-2_2}.
+
+\leavevmode\hypertarget{ref-YOUNG1991}{}%
+YOUNG, ANDREW T., RUSSELL M. GENET, LOUIS J. BOYD, WILLIAM J. BORUCKI,
+G. WESLEY LOCKWOOD, GREGORY W. HENRY, DOUGLAS S. HALL, et al. 1991.
+``PRECISE AUTOMATIC DIFFERENTIAL STELLAR PHOTOMETRY.'' Astronomical
+Society of the Pacific. \url{https://doi.org/10.2307/40679676}.
+
+\end{document}
+
+
