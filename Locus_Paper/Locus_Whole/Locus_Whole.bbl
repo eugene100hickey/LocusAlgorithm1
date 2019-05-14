@@ -1,7 +1,28 @@
-\begin{thebibliography}{0}
+\begin{thebibliography}{4}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname url\endcsname\relax
   \def\url#1{\texttt{#1}}\fi
 \expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+
+\bibitem[{Honeycutt(1992)}]{honeycutt1992ccd}
+Honeycutt, R.~K., 1992. Ccd ensemble photometry on an inhomogeneous set of
+  exposures. Publications of the Astronomical Society of the Pacific 104~(676),
+  435.
+
+\bibitem[{Howell(2006)}]{howell2006handbook}
+Howell, S.~B., 2006. Handbook of CCD astronomy. Vol.~5. Cambridge University
+  Press.
+
+\bibitem[{Milone and Pel(2011)}]{milone2011high}
+Milone, E., Pel, J.~W., 2011. The high road to astronomical photometric
+  precision: Differential photometry. In: Astronomical Photometry. Springer,
+  pp. 33--68.
+
+\bibitem[{Young et~al.(1991)Young, Genet, Boyd, Borucki, Lockwood, Henry, Hall,
+  Smith, Baliumas, Donahue, et~al.}]{young1991precise}
+Young, A.~T., Genet, R.~M., Boyd, L.~J., Borucki, W.~J., Lockwood, G.~W.,
+  Henry, G.~W., Hall, D.~S., Smith, D.~P., Baliumas, S., Donahue, R., et~al.,
+  1991. Precise automatic differential stellar photometry. Publications of the
+  Astronomical Society of the Pacific 103~(660), 221.
 
 \end{thebibliography}

@@ -21,42 +21,55 @@
 \emailauthor{Eugene.Hickey@it-tallaght.ie}{Eugene Hickey}
 \emailauthor{Kevin.Nolan@it-tallaght.ie}{Kevin Nolan}
 \emailauthor{nsmith@cit.ie}{Niall Smith}
+\citation{milone2011high,young1991precise}
+\citation{milone2011high,young1991precise,howell2006handbook,honeycutt1992ccd}
 \Newlabel{cor1}{1}
 \Newlabel{DIAS}{a}
 \Newlabel{TUD}{b}
 \Newlabel{CIT}{c}
-\@writefile{toc}{\contentsline {section}{Introduction}{1}{section*.1}}
-\newlabel{introduction}{{}{1}{Introduction}{section*.1}{}}
-\@writefile{toc}{\contentsline {section}{Conceptual basis to The Locus Algorithm}{1}{section*.2}}
-\newlabel{conceptual-basis-to-the-locus-algorithm}{{}{1}{Conceptual basis to The Locus Algorithm}{section*.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Diagrammatic representation of two stars with loci (red and blue perimeter lines), which intersect and produce two Points of Intersection (PoI's) circled in yellow.\relax }}{2}{figure.caption.3}}
-\@writefile{toc}{\contentsline {section}{Locus Algorithm Design}{2}{section*.4}}
-\newlabel{locus-algorithm-design}{{}{2}{Locus Algorithm Design}{section*.4}{}}
-\@writefile{toc}{\contentsline {subsection}{Definition of Coordinate System and Locus}{2}{section*.5}}
-\newlabel{definition-of-coordinate-system-and-locus}{{}{2}{Definition of Coordinate System and Locus}{section*.5}{}}
-\@writefile{loequ}{\contentsline {equ}{\numberline {1}{\ignorespaces Right Ascension foreshortening with Declination\relax }}{3}{equ.caption.6}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
+\newlabel{introduction}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Conceptual basis to The Locus Algorithm}{1}{section.2}}
+\newlabel{conceptual-basis-to-the-locus-algorithm}{{2}{1}{Conceptual basis to The Locus Algorithm}{section.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Diagrammatic representation of two stars with loci (red and blue perimeter lines), which intersect and produce two Points of Intersection (PoI's) circled in yellow.\relax }}{2}{figure.caption.1}}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{RAshort}{{1}{3}{Right Ascension foreshortening with Declination\relax }{equ.caption.6}{}}
-\@writefile{loequ}{\contentsline {equ}{\numberline {2}{\ignorespaces Definition of a corrected angular size along the RA direction (R$^\prime $)\relax }}{3}{equ.caption.7}}
-\newlabel{Rprime}{{2}{3}{Definition of a corrected angular size along the RA direction (R$^\prime $)\relax }{equ.caption.7}{}}
-\@writefile{loequ}{\contentsline {equ}{\numberline {3}{\ignorespaces Definition of a FoV of size R x S centred on a target at (\(RA_t\) , \(Dec_t\))\relax }}{3}{equ.caption.8}}
-\newlabel{FoVDef}{{3}{3}{Definition of a FoV of size R x S centred on a target at (\(RA_t\) , \(Dec_t\))\relax }{equ.caption.8}{}}
-\@writefile{loequ}{\contentsline {equ}{\numberline {4}{\ignorespaces Evaluation of the accuracy of the R$^\prime $ for areas away from the celestial pole.\relax }}{3}{equ.caption.9}}
-\newlabel{polar}{{4}{3}{Evaluation of the accuracy of the R$^\prime $ for areas away from the celestial pole.\relax }{equ.caption.9}{}}
-\@writefile{toc}{\contentsline {subsection}{Candidate Zone}{4}{section*.10}}
-\newlabel{candidate-zone}{{}{4}{Candidate Zone}{section*.10}{}}
-\@writefile{loequ}{\contentsline {equ}{\numberline {5}{\ignorespaces Definition of a Candidate Zone of size 2R x 2S centred on a target with coordinates (\(RA_t\), \(Dec_t\))\relax }}{4}{equ.caption.11}}
-\newlabel{CZdef}{{5}{4}{Definition of a Candidate Zone of size 2R x 2S centred on a target with coordinates (\(RA_t\), \(Dec_t\))\relax }{equ.caption.11}{}}
-\@writefile{toc}{\contentsline {subsection}{Identification and Filtering of Reference Stars}{4}{section*.13}}
-\newlabel{identification-and-filtering-of-reference-stars}{{}{4}{Identification and Filtering of Reference Stars}{section*.13}{}}
-\@writefile{toc}{\contentsline {subsection}{Identifying the Effective Locus for each Candidate Reference Star}{4}{section*.14}}
-\newlabel{identifying-the-effective-locus-for-each-candidate-reference-star}{{}{4}{Identifying the Effective Locus for each Candidate Reference Star}{section*.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Modified image taken from the SDSS ``Navigate'' tool. The image showing fields (in red) needed to form a mosaic from which a Candidate Zone (green) centred on the target can be defined.\relax }}{5}{figure.caption.12}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Each effective locus is defined by assigning a pair of RA and Dec coordinates for a corner point and a pair of lines North or South and East or West from the corner point. In this diagram, each candidate reference star is assigned a colour, and the effective locus that corresponds to it is drawn in the same colour.\relax }}{6}{figure.caption.15}}
-\@writefile{toc}{\contentsline {subsection}{Identifying and Scoring Points of Intersection and identifying the pointing.}{7}{section*.16}}
-\newlabel{identifying-and-scoring-points-of-intersection-and-identifying-the-pointing.}{{}{7}{Identifying and Scoring Points of Intersection and identifying the pointing}{section*.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Points of Intersection (PoI), and their associated score. In this diagram each star has a rating of 1, hence the score associated with each PoI is equal to the number of reference stars within a FoV centred at that PoI.\relax }}{8}{figure.caption.17}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Locus Algorithm. Target: white star. Pointing \& FoV: blue. Reference stars and their loci: Fully in the FoV: greens. On the edge of the FoV: yellows. Outside FoV: reds\relax }}{8}{figure.caption.18}}
+\newlabel{loci_concept}{{1}{2}{Diagrammatic representation of two stars with loci (red and blue perimeter lines), which intersect and produce two Points of Intersection (PoI's) circled in yellow.\relax }{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Locus Algorithm Design}{2}{section.3}}
+\newlabel{locus-algorithm-design}{{3}{2}{Locus Algorithm Design}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Definition of Coordinate System and Locus}{2}{subsection.3.1}}
+\newlabel{definition-of-coordinate-system-and-locus}{{3.1}{2}{Definition of Coordinate System and Locus}{subsection.3.1}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {1}{\ignorespaces Right Ascension foreshortening with Declination\relax }}{3}{equ.caption.2}}
+\newlabel{RAshort}{{1}{3}{Right Ascension foreshortening with Declination\relax }{equ.caption.2}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {2}{\ignorespaces Definition of a corrected angular size along the RA direction (R$^\prime $)\relax }}{3}{equ.caption.3}}
+\newlabel{Rprime}{{2}{3}{Definition of a corrected angular size along the RA direction (R$^\prime $)\relax }{equ.caption.3}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {3}{\ignorespaces Definition of a FoV of size R x S centred on a target at (\(RA_t\) , \(Dec_t\))\relax }}{3}{equ.caption.4}}
+\newlabel{FoVDef}{{3}{3}{Definition of a FoV of size R x S centred on a target at (\(RA_t\) , \(Dec_t\))\relax }{equ.caption.4}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {4}{\ignorespaces Evaluation of the accuracy of the R$^\prime $ for areas away from the celestial pole.\relax }}{3}{equ.caption.5}}
+\newlabel{polar}{{4}{3}{Evaluation of the accuracy of the R$^\prime $ for areas away from the celestial pole.\relax }{equ.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Candidate Zone}{4}{subsection.3.2}}
+\newlabel{candidate-zone}{{3.2}{4}{Candidate Zone}{subsection.3.2}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {5}{\ignorespaces Definition of a Candidate Zone of size 2R x 2S centred on a target with coordinates (\(RA_t\), \(Dec_t\)), in which zone reference stars with coordinates (\(RA_r\), \(Dec_r\)) can be found.\relax }}{4}{equ.caption.6}}
+\newlabel{CZdef}{{5}{4}{Definition of a Candidate Zone of size 2R x 2S centred on a target with coordinates (\(RA_t\), \(Dec_t\)), in which zone reference stars with coordinates (\(RA_r\), \(Dec_r\)) can be found.\relax }{equ.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Identification and Filtering of Reference Stars}{4}{subsection.3.3}}
+\newlabel{identification-and-filtering-of-reference-stars}{{3.3}{4}{Identification and Filtering of Reference Stars}{subsection.3.3}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {6}{\ignorespaces Definition of the limits of mag difference between the target and references.\relax }}{5}{equ.caption.7}}
+\newlabel{maglim}{{6}{5}{Definition of the limits of mag difference between the target and references.\relax }{equ.caption.7}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {7}{\ignorespaces Definition of the limits of colour difference between the target and references.\relax }}{5}{equ.caption.8}}
+\newlabel{collim}{{7}{5}{Definition of the limits of colour difference between the target and references.\relax }{equ.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Identifying the Effective Locus for each Candidate Reference Star}{5}{subsection.3.4}}
+\newlabel{identifying-the-effective-locus-for-each-candidate-reference-star}{{3.4}{5}{Identifying the Effective Locus for each Candidate Reference Star}{subsection.3.4}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {8}{\ignorespaces Definition of the corner point (\(RA_c\), \(Dec_c\)) of the effective locus for a FoV of size R x S for a candidate reference star at (\(RA_r\), \(Dec_r\)) and a target at (\(RA_t\), \(Dec_t\)) \relax }}{5}{equ.caption.10}}
+\newlabel{CPDef}{{8}{5}{Definition of the corner point (\(RA_c\), \(Dec_c\)) of the effective locus for a FoV of size R x S for a candidate reference star at (\(RA_r\), \(Dec_r\)) and a target at (\(RA_t\), \(Dec_t\)) \relax }{equ.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Each effective locus is defined by assigning a pair of RA and Dec coordinates for a corner point and a pair of lines North or South and East or West from the corner point. In this diagram, each candidate reference star is assigned a colour, and the effective locus that corresponds to it is drawn in the same colour.\relax }}{6}{figure.caption.9}}
+\newlabel{effective_locus}{{2}{6}{Each effective locus is defined by assigning a pair of RA and Dec coordinates for a corner point and a pair of lines North or South and East or West from the corner point. In this diagram, each candidate reference star is assigned a colour, and the effective locus that corresponds to it is drawn in the same colour.\relax }{figure.caption.9}{}}
+\@writefile{loequ}{\contentsline {equ}{\numberline {9}{\ignorespaces Definition the directions (\(DirRA\), \(DirDec\)) of the lines from the corner point of that define the effective locus for a FoV of size R x S for a candidate reference star at (\(RA_c\), \(Dec_c\)) and given a target at (\(RA_t\), \(Dec_t\)). In current implementations, these values are encoded as a binary switch, with 1 representing increasing (\(+ive\)) direction and 0 representing decreasing (\(-ive\)) direction.\relax }}{6}{equ.caption.11}}
+\newlabel{DirDef}{{9}{6}{Definition the directions (\(DirRA\), \(DirDec\)) of the lines from the corner point of that define the effective locus for a FoV of size R x S for a candidate reference star at (\(RA_c\), \(Dec_c\)) and given a target at (\(RA_t\), \(Dec_t\)). In current implementations, these values are encoded as a binary switch, with 1 representing increasing (\(+ive\)) direction and 0 representing decreasing (\(-ive\)) direction.\relax }{equ.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Identifying and Scoring Points of Intersection and identifying the pointing.}{6}{subsection.3.5}}
+\newlabel{identifying-and-scoring-points-of-intersection-and-identifying-the-pointing.}{{3.5}{6}{Identifying and Scoring Points of Intersection and identifying the pointing}{subsection.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Points of Intersection (PoI), and their associated score. In this diagram each star has a rating of 1, hence the score associated with each PoI is equal to the number of reference stars within a FoV centred at that PoI.\relax }}{7}{figure.caption.12}}
+\newlabel{PoIscores}{{3}{7}{Points of Intersection (PoI), and their associated score. In this diagram each star has a rating of 1, hence the score associated with each PoI is equal to the number of reference stars within a FoV centred at that PoI.\relax }{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Locus Algorithm. Target: white star. Pointing \& FoV: blue. Reference stars and their loci: Fully in the FoV: greens. On the edge of the FoV: yellows. Outside FoV: reds\relax }}{8}{figure.caption.13}}
+\newlabel{final}{{4}{8}{Locus Algorithm. Target: white star. Pointing \& FoV: blue. Reference stars and their loci: Fully in the FoV: greens. On the edge of the FoV: yellows. Outside FoV: reds\relax }{figure.caption.13}{}}
 \gdef \LT@i {\LT@entry 
     {1}{29.194pt}\LT@entry 
     {1}{84.75026pt}}
@@ -66,8 +79,8 @@
 \gdef \LT@iii {\LT@entry 
     {2}{117.9998pt}\LT@entry 
     {1}{43.02737pt}}
-\@writefile{toc}{\contentsline {section}{Example Implementation of the Locus Algorithm}{10}{section*.19}}
-\newlabel{example-implementation-of-the-locus-algorithm}{{}{10}{Example Implementation of the Locus Algorithm}{section*.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Example Implementation of the Locus Algorithm}{9}{section.4}}
+\newlabel{example-implementation-of-the-locus-algorithm}{{4}{9}{Example Implementation of the Locus Algorithm}{section.4}{}}
 \gdef \LT@iv {\LT@entry 
     {2}{101.00002pt}\LT@entry 
     {2}{44.77777pt}\LT@entry 
@@ -78,5 +91,9 @@
     {1}{40.61076pt}\LT@entry 
     {1}{42.27751pt}\LT@entry 
     {1}{36.08344pt}}
-\newlabel{references}{{}{14}{References}{section*.20}{}}
-\@writefile{toc}{\contentsline {subsection}{References}{14}{section*.20}}
+\bibstyle{elsarticle-num-names}
+\bibdata{Locus_Whole_bibtex}
+\bibcite{honeycutt1992ccd}{{1}{1992}{{Honeycutt}}{{}}}
+\bibcite{howell2006handbook}{{2}{2006}{{Howell}}{{}}}
+\bibcite{milone2011high}{{3}{2011}{{Milone and Pel}}{{}}}
+\bibcite{young1991precise}{{4}{1991}{{Young et~al.}}{{Young, Genet, Boyd, Borucki, Lockwood, Henry, Hall, Smith, Baliumas, Donahue, et~al.}}}
