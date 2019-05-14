@@ -1,8 +1,12 @@
-\begin{thebibliography}{4}
+\begin{thebibliography}{5}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname url\endcsname\relax
   \def\url#1{\texttt{#1}}\fi
 \expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+
+\bibitem[{Creaner(2016)}]{creaner2016thesis}
+Creaner, O., 2016. Data mining by grid computing in the search for extrasolar
+  planets. Ph.D. thesis, Institute of Technology, Tallaght, Dublin.
 
 \bibitem[{Honeycutt(1992)}]{honeycutt1992ccd}
 Honeycutt, R.~K., 1992. Ccd ensemble photometry on an inhomogeneous set of
