@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.4.16)  14 MAY 2019 17:54
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.4.16)  14 MAY 2019 19:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Locus_Whole.tex
+**Locus_Whole
 (./Locus_Whole.tex
 LaTeX2e <2017-04-15>
 Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
@@ -1138,76 +1138,80 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [4]
-<fig3.png, id=123, 170.88844pt x 170.88844pt>
+<fig3.png, id=123, 1897.0875pt x 1891.065pt>
 File: fig3.png Graphic file (type png)
 <use fig3.png>
-Package pdftex.def Info: fig3.png  used on input line 329.
-(pdftex.def)             Requested size: 170.88802pt x 170.89844pt.
- [5] [6 <./fig3.png>]
-<fig4.png, id=149, 171.64125pt x 171.64125pt>
+Package pdftex.def Info: fig3.png  used on input line 328.
+(pdftex.def)             Requested size: 207.0021pt x 206.34418pt.
+ [5] [6 <./fig3.png>] [7]
+<fig4.png, id=160, 1903.11pt x 1788.6825pt>
 File: fig4.png Graphic file (type png)
 <use fig4.png>
-Package pdftex.def Info: fig4.png  used on input line 435.
-(pdftex.def)             Requested size: 171.64081pt x 171.64081pt.
- [7 <./fig4.png>]
-<fig5.png, id=162, 170.88844pt x 170.88844pt>
+Package pdftex.def Info: fig4.png  used on input line 471.
+(pdftex.def)             Requested size: 207.0021pt x 194.54494pt.
+<fig5.png, id=163, 1897.0875pt x 1761.58125pt>
 File: fig5.png Graphic file (type png)
 <use fig5.png>
-Package pdftex.def Info: fig5.png  used on input line 463.
-(pdftex.def)             Requested size: 170.88802pt x 170.89844pt.
- [8 <./fig5.png>] [9] [10]
-Overfull \hbox (40.95753pt too wide) in paragraph at lines 570--584
+Package pdftex.def Info: fig5.png  used on input line 479.
+(pdftex.def)             Requested size: 207.0021pt x 192.21552pt.
+ [8 <./fig4.png>]
+Overfull \vbox (240.02907pt too high) has occurred while \output is active []
+
+
+[9 <./fig5.png>]
+Overfull \hbox (40.95753pt too wide) in paragraph at lines 585--599
 \T1/lmr/m/n/10 (-20) AND (psf-mag_g - psf-mag_r) BE-TWEEN ( 0.633989999999999 )
  AND ( 0.833989999999999
  []
 
 
-Overfull \hbox (38.02974pt too wide) in paragraph at lines 570--584
+Overfull \hbox (38.02974pt too wide) in paragraph at lines 585--599
 \T1/lmr/m/n/10 (-20) AND (psf-mag_r - psf-mag_i) BE-TWEEN ( 0.149080000000001 )
  AND ( 0.349080000000001
  []
 
 
-Overfull \hbox (85.83179pt too wide) in alignment at lines 588--593
+Overfull \hbox (85.83179pt too wide) in alignment at lines 603--608
  [] [] [] [] [] [] [] [] [] 
  []
 
 
-Overfull \hbox (85.83179pt too wide) in alignment at lines 593--609
+Overfull \hbox (85.83179pt too wide) in alignment at lines 608--624
  [] [] [] [] [] [] [] [] [] 
  []
 
-<Locus_Whole_files/figure-latex/locus_plot-1.pdf, id=183, 469.755pt x 325.215pt
+<Locus_Whole_files/figure-latex/locus_plot-1.pdf, id=182, 469.755pt x 325.215pt
 >
 File: Locus_Whole_files/figure-latex/locus_plot-1.pdf Graphic file (type pdf)
 <use Locus_Whole_files/figure-latex/locus_plot-1.pdf>
 Package pdftex.def Info: Locus_Whole_files/figure-latex/locus_plot-1.pdf  used 
-on input line 611.
-(pdftex.def)             Requested size: 345.0pt x 238.84406pt.
+on input line 626.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-Overfull \hbox (15.0pt too wide) in paragraph at lines 611--612
+Overfull \hbox (139.75386pt too wide) in paragraph at lines 626--627
 [][] 
  []
 
-(./Locus_Whole.bbl [11])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 660.
- [12 <./Locus_Whole_files/figure-latex/locus_plot-1.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 660.
+(./Locus_Whole.bbl [10] [11 <./Locus_Whole_files/figure-latex/locus_plot-1.pdf>
+])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 675.
+ [12]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 675.
  (./Locus_Whole.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 660.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 660.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 675.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 675.
 Package rerunfilecheck Info: File `Locus_Whole.out' has not changed.
 (rerunfilecheck)             Checksum: D7E18146E384C527E3CB689241D3FCA9;2382.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 660.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 675.
  ) 
 Here is how much of TeX's memory you used:
- 14522 strings out of 492982
- 210428 string characters out of 6134896
- 318914 words of memory out of 5000000
- 17697 multiletter control sequences out of 15000+600000
+ 14523 strings out of 492982
+ 210439 string characters out of 6134896
+ 318983 words of memory out of 5000000
+ 17696 multiletter control sequences out of 15000+600000
  61530 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 39i,19n,43p,561b,461s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 39i,19n,43p,557b,448s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/en
 c/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/shar
 e/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/l
@@ -1222,10 +1226,10 @@ i7.pfb></usr/share/texmf/fonts/type1/public/lm/lmri8.pfb></usr/share/texmf/font
 s/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb>
 </usr/share/texmf/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf/fonts/type1
 /public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt8.pfb>
-Output written on Locus_Whole.pdf (12 pages, 301805 bytes).
+Output written on Locus_Whole.pdf (12 pages, 544801 bytes).
 PDF statistics:
- 282 PDF objects out of 1000 (max. 8388607)
- 234 compressed objects within 3 object streams
- 67 named destinations out of 1000 (max. 500000)
+ 285 PDF objects out of 1000 (max. 8388607)
+ 237 compressed objects within 3 object streams
+ 69 named destinations out of 1000 (max. 500000)
  17506 words of extra memory for PDF output out of 20736 (max. 10000000)
 

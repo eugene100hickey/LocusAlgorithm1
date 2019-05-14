@@ -36,15 +36,15 @@
 \IfFileExists{microtype.sty}{\usepackage{microtype}}{}
 \usepackage{longtable}
 \usepackage{graphicx}
-% We will generate all images so they have a width \maxwidth. This means
-% that they will get their normal width if they fit onto the page, but
-% are scaled down if they would overflow the margins.
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
-\else\Gin@nat@width\fi}
-\makeatother
-\let\Oldincludegraphics\includegraphics
-\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
+%% We will generate all images so they have a width \maxwidth. This means
+%% that they will get their normal width if they fit onto the page, but
+%% are scaled down if they would overflow the margins.
+%\makeatletter
+%\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+%\else\Gin@nat@width\fi}
+%\makeatother
+%\let\Oldincludegraphics\includegraphics
+%\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
 \ifxetex
   \usepackage[setpagesize=false, % page size defined by xetex
               unicode=false, % unicode breaks when used with xetex
@@ -141,7 +141,7 @@ with another, they produce Points of Intersection (PoIs) as shown in Figure \ref
 
 \begin{figure}
 \centering
-\includegraphics{fig1.png}
+\includegraphics[width=\textwidth]{fig1.png}
 \caption{\label{loci_concept}Diagrammatic representation of two stars with loci
 (red and blue perimeter lines), which intersect and produce two Points
 of Intersection (PoI's) circled in yellow.  Copied from \citet{creaner2016thesis}}
@@ -325,8 +325,7 @@ constant RA and a single line of constant Dec nearest the target star
 as shown in Figure \ref{effective_locus}.
 
 \begin{figure}
-\centering
-\colorbox{black}{\includegraphics{fig3.png}}
+\center{\includegraphics[width=0.6\textwidth]{fig3.png}}
 \caption{\label{effective_locus}Each effective locus is defined by assigning a pair
 of RA and Dec coordinates for a corner point and a pair of lines North
 or South and East or West from the corner point. In this diagram, each
@@ -376,7 +375,7 @@ reference star relative to that of the target are given in Expression \ref{DirDe
   constant RA is drawn in the direction of decreasing Dec.
 \end{itemize}
 
-\begin{equ}[!h]
+\begin{equ}[!htb]
   \begin{equation}
 \begin{split}
 &RA_t \leq RA_r \Rightarrow DirDec = +ive\\
@@ -410,7 +409,7 @@ checked:
 \end{itemize}
 
 Using these parameters, a check as to whether an intersection between
-the two loci occurs is achieved as follows:
+the two loci occurs is achieved as follows:  
 
 \begin{itemize}
 \tightlist
@@ -428,16 +427,27 @@ the two loci occurs is achieved as follows:
 
 \ldots{} and so on. By checking all such possible combinations, all
 pairs of loci in the field which result in a Point of Intersection are
-identified and their RA and Dec noted.
+identified and their RA and Dec noted. The above cases are mathematically 
+expressed in Expression \ref{PoICheck}.
 
-\begin{figure}[!htb]
-\centering
-\colorbox{black}{\includegraphics{fig4.png}}
-\caption{\label{PoIscores}Points of Intersection (PoI), and their associated
-score. In this diagram each star has a rating of 1, hence the score
-associated with each PoI is equal to the number of reference stars
-within a FoV centred at that PoI.Copied from \citet{creaner2016thesis}}
-\end{figure}
+\begin{equ}[!h]
+  \begin{equation}
+\begin{split}
+&if: DirDec_1 = +ive, DirRA_2 = +ive\\
+&and: RA_{r1} < RA_{r2}\\
+&and: Dec_{r1} > Dec_{r2}\\
+&PoI\: exists\: at\: RA_p = RA_{c2}, Dec_p = Dec_{c1}\\
+\\
+&if: DirRA_1 = +ive, DirDec_2 = +ive\\
+&and: RA_{r1} > RA_{r2}\\
+&and: Dec_{r1} < Dec_{r2}\\
+&PoI\: exists\: at\: RA_p = RA_{c1}, Dec_p = Dec_{c2}\\
+\ldots{}
+\end{split}
+  \end{equation}
+\caption{\label{PoICheck}Definition of a PoI (\(RA_p\), \(Dec_p\)) given several sample cases.}
+\end{equ}
+
 Subsequent to identification, each Point of Intersection is then scored.
 This is achieved as follows:
 
@@ -451,16 +461,22 @@ This is achieved as follows:
   on its similarity in colour to the target.
 \item
   The ratings from all counted reference stars in the Field of View are
-  combined into one overall score for the field (Figure \ref{PoIscores}).
+  combined into one overall \(score\) for the field (Figure \ref{PoIscores}).
 \item
   The Point of Intersection with the highest score becomes the pointing
   for the target (Figure \ref{final}).
 \end{itemize}
 
+\begin{figure}[!htb]
+\center{\includegraphics[width=0.6\textwidth]{fig4.png}}
+\caption{\label{PoIscores}Points of Intersection (PoI), and their associated
+score. In this diagram each star has a rating of 1, hence the score
+associated with each PoI is equal to the number of reference stars
+within a FoV centred at that PoI.Copied from \citet{creaner2016thesis}}
+\end{figure}
 
 \begin{figure}[!htb]
-\centering
-\colorbox{black}{\includegraphics{fig5.png}}
+\center{\includegraphics[width=0.6\textwidth]{fig5.png}}
 \caption{\label{final}Locus Algorithm. Target: white star. Pointing \& FoV:
 blue. Reference stars and their loci: Fully in the FoV: greens. On the
 edge of the FoV: yellows. Outside FoV: reds.  Modified from \citet{creaner2016thesis}}
@@ -482,7 +498,6 @@ coordinates of the optimum pointing for a given target, where optimum
 means a field of view with the maximum number of reference stars which
 are similar in magnitude and colour to the target.
 
-\newpage
 
 \hypertarget{example-implementation-of-the-locus-algorithm}{%
 \section{Example Implementation of the Locus
