@@ -1,0 +1,574 @@
+---
+title: "The Locus Algorithm"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+geometry: "left=4cm, right=3cm, top=2.5cm, bottom=2.5cm"
+author:
+  - name: O. Creaner
+    email:  creanero@cp.dias.ie
+    affiliation: Dublin Institute for Advanced Studies
+    footnote: Corresponding Author
+  - name: E. Hickey
+    email:  eugene.hickey@it-tallaght.ie
+    affiliation: Technological University Dublin
+  - name: K.Nolan
+    email:  kevin.nolan@it-tallaght.ie
+    affiliation: Technological University Dublin
+  - name: N.Smith
+    email: nsmith@cit.ie
+    affiliation: Cork Institute of Technology
+address:
+  - code: Dublin Institute for Advanced Studies
+    address: Dublin Institute for Advanced Studies, 31 Fitzwilliam Place, Dublin 2, Ireland
+  - code: Technological University Dublin
+    address: Technological University Dublin, Tallaght Campus, Dublin 24, Ireland
+  - code: Cork Institute of Technology
+    address: Cork Institute of Technology, Bishopstown, Cork, Ireland
+abstract: |
+  We describe the design, implementation and operation of a new algorithm, The Locus Algorithm; which enables optimised differential photometry. For a given target, The Locus Algorithm identifies the pointing for which the resultant FoV includes the target and the maximum number of similar reference stars available, thus enabling optimised differential photometry of the target. We describe the application of The Locus Algorithm to a target from the Sloan Digital Sky Survey to provide optimum differential photometry for that target. The algorithm was also used to generate catalogues of pointing's to optimise Quasars variability studies and to generate catalogues of optimised pointings in the search for Exoplanets via the transit method.
+
+Keywords: Differential Photometry, Quasar, Exoplanets, Transit method
+
+journal: "Astronomy & Astrophysics"
+bibliography: /home/eugene/Desktop/Academic/Research/library.bib
+output: rticles::elsevier_article
+---
+
+
+# Introduction
+
+Photometric variability studies involve identifying variations in brightness of a celestial point source over time. Such studies are hampered by the Earth's atmosphere, which causes first order and second order extinction @Milone2011 @YOUNG1991. Differential Photometry mitigates the effect of the Earth's atmosphere by comparing the brightness of a target to reference stars in the same Field of View (FoV). Differential photometry can be optimised for the target by choosing a pointing whose Field of View (FoV) includes the target and the maximum number of reference stars of similar magnitude and colour. @Milone2011 @YOUNG1991 @Howell2000 @Honeycutt1992.
+
+The Locus Algorithm enables optimised differential photometry by identifying the pointing for which the resultant FoV includes the target and the best set of similar reference stars available.
+
+
+# Conceptual basis to The Locus Algorithm
+
+A locus can be defined around any star such that a FoV centred on any point on the locus will include the star at the edge of the FoV. For fields containing stars close to one another, if one locus intersects with another, they produce Points of Intersection (PoIs) (Figure 1).
+
+
+![Figure 1. Diagrammatic representation of two stars with loci (red and blue perimeter lines), which intersect and produce two Points of Intersection (PoI's) circled in yellow.](fig1.png)
+
+A FoV centred on any such PoI will include both stars associated with creating it. At Points of Intersection the set of stars that can be included in a FoV changes.
+
+The Locus Algorithm considers candidate reference stars in what is termed a Candidate Zone (CZ) - the zone of sky centred on the target within which a FoV can be selected which includes both the reference star and the target. Within the Candidate Zone, all relevant Points of Intersection are identified. Each PoI is assigned a score derived from the number and similarity of reference stars included in it's resulting FoV. The PoI with the highest score becomes the pointing for the target.
+
+
+# Locus Algorithm Design
+
+## Definition of Coordinate System and Locus
+
+For computational efficiency, The Locus Algorithm considers a Field of View to be a rectangular area on the sky orientated such that the edges are aligned with the primary x and y axes of the Cartesian coordinate system. Movement of the field is restricted to x or y translations.
+
+However, the Celestial coordinate system is defined by the Equatorial coordinate system, with coordinates specified by Right Ascension (RA) and Declination (Dec). Because this is a spherical coordinate system, unit angle in RA is foreshortened, with the degree of foreshortening defined by:
+
+$$angle \in RA = {\frac{True Angle}{cosine(Dec)}} \tag{Equation 1: Right Ascension foreshortening with Declination}$$
+
+By using this conversion, it is possible to approximate to a high degree of accuracy a Cartesian coordinate system using RA and Dec; with a small FoV of horizontal size R and vertical size S about a star located at point $RA_c$ and $Dec_c$ , where
+
+$$R^` = {\frac{R}{cos(Dec_c)}}$$
+as:
+
+$$RA_c - {\frac{R^`}{2}} \leq RA \leq RA_c + {\frac{R^`}{2}} $$
+
+$$Dec_c - {\frac{S}{2}} \leq Dec \leq Dec_c + {\frac{S}{2}}$$
+
+Equation 2. Definition of a FoV of size R x S centred on a point ($RA_c$ , $Dec_c$)
+
+
+This definition is accurate to approximately 1% for a FoV of area 15' square outside celestial polar regions; and does not consider RA "loop around" from 359.99$^{\circ}$ to 0.00$^{\circ}$; resulting, for example, in the exclusion of 0.23% of the SDSS catalogue. Planned enhancements to The Locus Algorithm will resolve these shortcomings.
+
+We can therefore define the locus about any star on the sky located at $RA_c$ and $Dec_c$ as the values of Right Ascension and Declination as defined in Equation 2.
+
+
+## Candidate Zone
+
+A Candidate Zone is defined as a region centred on the target, equal to four times the area of any Field of View (Equation 3), within which any reference star can be included in a Field of View with the target and can therefore be considered as a candidate reference star in identifying the optimum pointing. Conversely, stars outside the candidate zone cannot be included in a Field of View with the target and cannot therefore be considered as candidates reference stars. Hence the Candidate Zone is the maximum region of sky centred on the target from which to choose candidate reference stars when identifying an optimum pointing for a given target. For a target positioned at coordinates $RA_c$ and $Dec_c$ the resulting Candidate Zone is defined by:
+
+$$RA_c - R^` \leq RA \leq RA_c + R^` $$
+
+$$Dec_c - S \leq Dec \leq Dec_c + S$$
+
+Equation 3. Definition of a Candidate Zone of size 2R x 2S centred on a target  with  coordinates ($RA_c$, $Dec_c$)
+
+![Figure 2. Modified image taken from the SDSS "Navigate" tool. The image showing fields (in red) needed to form a mosaic from which a Candidate Zone (green) centred on the target can be defined.](fig2.png)
+
+## Identification and Filtering of Reference Stars
+
+For each target, a list of candidate reference stars in its Candidate Zone is produced based on the following criteria:
+
+* Position: the reference star must be in the Candidate Zone.
+* Magnitude: the reference star must be within a user-defined limit of the target's magnitude.
+* Colour: the reference star must match the colour of the target to within a user-specified limit.
+* Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit.
+
+All stars in the Candidate Zone which pass these initial filters become the list of candidate reference stars from which loci will be identified.
+
+
+## Identifying the Effective Locus for each Candidate Reference Star
+
+The locus associated with each candidate reference star must be identified based on Equation 2. For the purposes of identifying Points of Intersection, only the side surrounding a given candidate reference star closest to the target need be considered. Hence, we can define the effective locus for such a candidate reference star as a single line of constant RA and a single line of constant Dec nearest the target star (Figure 3).
+
+![Figure 3: Each effective locus is defined by assigning a pair of RA and Dec coordinates for a corner point and a pair of lines North or South and East or West from the corner point. In this diagram, each candidate reference star is assigned a colour, and the effective locus  that corresponds to it is drawn in the same colour.](fig3.png)
+
+Specifically, the effective locus can be defined as a corner point of the locus and two lines: one of constant RA and the other of constant Dec emanating from the corner point. The direction of the lines is determined by the Right Ascension and Declination of the candidate reference star relative to the target; as follows:
+
+* If the RA of the candidate is greater than the target, the line of constant Dec is drawn in the direction of increasing RA
+* If the RA of the candidate is less than the target, the line of constant Dec is drawn in the direction of decreasing RA
+* If the Dec of the candidate is greater than the target, the line of constant RA is drawn in the direction of increasing Dec
+* If the Dec of the candidate is less than the target, the line of constant RA is drawn in the direction of decreasing Dec.
+
+Using the Equatorial Coordinate System discussed in Section 3.1, with coordinates of the target specified by $(RA_{target}, Dec_{target})$ and coordinates of the candidate reference star defined by $(RA_{reference}, Dec_{reference})$ and a size of FoV of horizontal length R and vertical length S, the coordinates of the corner point $(RA_{corner-point}, Dec_{corner-point})$ are defined as:
+
+$$RA_{target} \leq RA_{reference} \Rightarrow RA_{corner-point} = RA_{reference}- R^` $$
+
+$$RA_{target} > RA_{reference} \Rightarrow RA_{corner-point} = RA_{reference}+ R^` $$
+
+$$Dec_{target} \leq Dec_{reference} \Rightarrow Dec_{corner-point} = Dec_{reference}- {\frac{S}{2}} $$
+
+$$Dec_{target} > Dec_{reference} \Rightarrow Dec_{corner-point} = Dec_{reference} + {\frac{S}{2}}$$
+
+The direction of the lines of constant RA and Dec of the effective locus emanating from any such corner point are determined according to the criteria describe above.
+
+## Identifying and Scoring Points of Intersection and identifying the pointing.
+
+The points where lines from any two loci are identified. This involves comparing the corner point RA and Dec and direction of lines for one locus with the corner point RA and Dec and direction of lines for a second locus.  In total eight variable associated with each two loci are checked:
+
+* For Locus 1: $RA_1$, $Dec_1$, $DirRA_1$, $DirDec_1$
+* For Locus 2: $RA_2$, $Dec_2$, $DirRA_2$, $DirDec_2$
+
+Using these parameters, a check as to whether an intersection between the two loci occurs is achieved as follows:
+
+* A line of constant Dec in the positive RA direction from the corner point of locus 1 will intersect with a line of constant RA in the positive Dec direction from the corner point of locus 2 if locus 1 has a lower RA than locus 2 and locus 1 has a higher Dec than locus 2.
+* A line of constant RA in the positive Dec direction from the corner point of locus 1 will intersect with a line of constant Dec in the positive RA direction from the corner point of locus 2 if locus 1 has a lower Dec than locus 2 and locus 1 has a higher RA than locus 2.
+
+... and so on. By checking all such possible combinations, all pairs of loci in the field which result in a Point of Intersection are identified and their RA and Dec noted.
+
+Subsequent to identification, each Point of Intersection is then scored. This is achieved as follows:
+
+* The number of reference stars in the Field of View centred on the Point of Intersection is counted.
+* Each reference star is assigned a rating value between 0 and 1 based on its similarity in colour to the target.
+* The ratings from all counted reference stars in the Field of View are combined into one overall score for the field (Figure 4).
+* The Point of Intersection with the highest score becomes the pointing for the target (Figure 5).
+
+
+![Figure 4.  Points of Intersection (PoI), and their associated score. In this diagram each star has a rating of 1, hence the score associated with each PoI is equal to the number of reference stars within a FoV centred at that PoI.](fig4.png)
+
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics("fig5.png") -->
+<!-- ``` -->
+
+![Figure 5: Locus Algorithm. Target: white star.  Pointing & FoV: blue.  Reference stars and their loci: Fully in the FoV: greens.  On the edge of the FoV: yellows.  Outside FoV: reds](fig5.png)
+
+Scenarios can arise which result in an inability to identify an optimum pointing for a given target for example if there are no, or a maximum of one reference stars in the candidate zone; and if no points of intersection arise – a scenario which can arise if two (or more) reference fall in one quadrant of the candidate zone resulting in concentric loci, or where reference stars are too far apart in different quadrants of the candidate zone in order for their loci to intersect. All four of these scenarios are considered in practical implementations of the locus algorithm aimed at identifying the optimum pointings for a set of targets in a catalogue or list of targets.
+
+In summary, the Locus Algorithm successfully identifies the RA and Dec coordinates of the optimum pointing for a given target, where optimum means a field of view with the maximum number of reference stars which are similar in magnitude and colour to the target.
+
+
+```{r setup, echo = F, message=FALSE, warning=F, cache = F}
+#################################
+require(RCurl)
+require(tidyverse)
+require(magrittr)
+require(knitr)
+require(data.table)
+#################################
+
+
+```
+
+```{r locus, echo = F, message=FALSE, warning=F, cache = T}
+ObjID <- "1237680117417115655" # star
+# SQL that downloads some info on the chosen target from SDSS.
+# ObjID from SDSS specifies the target
+targetSqlQuery <- paste("SELECT top 10 ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z FROM star WHERE ObjID = ", ObjID)
+
+# downloads target data
+# dataframe target has necessary info
+targetSqlQuery <- str_squish(targetSqlQuery)
+urlBase <- "http://skyserver.sdss.org/dr15/SkyserverWS/SearchTools/SqlSearch?"
+X <- getForm(urlBase, cmd = targetSqlQuery, format = "csv")
+target <- read.table(text = X, header = TRUE, sep = ",", dec = ".", comment.char = "#")
+
+# sets some variables for convenience. Last two are the field sizes
+# ra.size is automatically adjusted for each target depending on its dec
+# M is the maximum colour difference
+# resol is important for gauging crowded references
+# dynamic range is to prevent saturation of either target or reference
+u <- target$psfmag_u
+g <- target$psfmag_g
+r <- target$psfmag_r
+i <- target$psfmag_i
+z <- target$psfmag_z
+ra <- target$ra
+dec <- target$dec
+M <- 0.1 # 0.1
+dec.size = 10/60 # 0.167
+dec.super = 12/60 # 0.20
+ra.size = dec.size / cos(dec*pi/180)
+ra.super = dec.super / cos(dec*pi/180)
+resol <- 0.003
+dynamic_range <- 2 # 5
+crowd_mag_limit <- 5
+'%+%' <- function(x,y) paste(x,y,sep="")
+
+# SQL that counts objects in reference area
+mySqlQuery <- str_glue(
+"SELECT objID, ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z
+FROM photoObj
+WHERE (ra between ({ra - ra.size}) AND ({ra + ra.size})
+OR ra BETWEEN ({360 + ra - ra.size}) AND ({360 + ra + ra.size})
+OR ra BETWEEN ({-360 + ra - ra.size}) AND ({-360 + ra + ra.size}))
+AND dec BETWEEN ({dec - dec.size}) AND ({dec + dec.size})
+AND clean = 1
+AND (calibStatus_r & 1) != 0")
+
+# reads in data from SDSS.
+# just counting how many objects in field
+# doesn't care about mags
+mySqlQuery <- str_squish(mySqlQuery)
+X <- getForm(urlBase, cmd = mySqlQuery, format = "csv")
+in_frame <- read.table(text = X, 
+                header = TRUE, 
+                sep = ",", 
+                dec = ".", 
+                comment.char = "#",
+                colClasses = c("character", rep("numeric",7)))
+Object_Count <- dim(in_frame)[1]
+Magnitude_Range <- in_frame %>% 
+  filter(between(psfmag_r, r - dynamic_range, r + dynamic_range)) 
+Magnitude_Count <- dim(Magnitude_Range)[1]
+Colour_Range <- Magnitude_Range %>% 
+  filter(between((psfmag_g - psfmag_r) , g - r - M, g - r + M)) %>% 
+  filter(between((psfmag_r - psfmag_i), r - i - M, r - i + M))
+Colour_Count <- dim(Colour_Range)[1]
+
+# SQL query that downloads data from SDSS for objects
+# potentially in the same field as the target
+mySqlQuery1 <-str_glue(
+"SELECT objID, ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z\n
+FROM photoObj\n
+WHERE (ra between ({ra - ra.size}) AND ({ra + ra.size})\n
+OR ra BETWEEN ({360 + ra - ra.size}) AND ({360 + ra + ra.size})\n
+OR ra BETWEEN ({-360 + ra - ra.size}) AND ({-360 + ra + ra.size})\n)
+AND dec BETWEEN ({dec - dec.size}) AND ({dec + dec.size})\n
+AND psfmag_r BETWEEN {r - dynamic_range} AND { r + dynamic_range} \n
+AND (psfmag_g - psfmag_r) BETWEEN ({g - r - M}) AND ({g - r + M})\n
+AND (psfmag_r - psfmag_i) BETWEEN ({r - i - M}) AND ({r - i + M})\n
+AND clean = 1\n
+AND (calibStatus_r & 1) != 0")
+
+# reads in data from SDSS.
+# dataframe called A has all the details
+mySqlQuery <- str_squish(mySqlQuery1)
+
+X <- getForm(urlBase, cmd = mySqlQuery, format = "csv")
+A <- read.table(text = X, 
+                header = TRUE, 
+                sep = ",", 
+                dec = ".", 
+                comment.char = "#",
+                colClasses = c("character", rep("numeric",7)))
+Object_Count_mags <- dim(A)[1]
+
+# wrap-around for targets near 0 RA
+A$ra <- if_else(A$ra - target$ra > 180, A$ra - 360, A$ra) 
+# wrap-around for targets near 360 RA
+A$ra <- if_else(target$ra - A$ra > 180, A$ra + 360, A$ra)
+
+
+# SQL query that downloads data from SDSS for objects
+# potentially crowding the references
+
+crowdingSqlQuery <- str_glue(
+"SELECT objID, ra, dec, psfmag_r FROM photoObj
+WHERE (ra between ({ra - ra.size}) AND ({ra + ra.size})
+OR ra between ({360 + ra - ra.size}) AND ({360 + ra + ra.size})
+OR ra between ({-360 + ra - ra.size}) AND ({-360 + ra + ra.size}))
+AND dec between ({dec - dec.size}) AND ({dec + dec.size})
+AND psfmag_r < {r + crowd_mag_limit} AND clean = 1
+AND (calibStatus_r & 1) != 0")
+crowdingSqlQuery <- str_squish(crowdingSqlQuery)
+crowd <- getForm(urlBase, cmd = crowdingSqlQuery, format = "csv")
+crowdA <- read.table(text = crowd, 
+                      header = TRUE, 
+                      sep = ",", 
+                      dec = ".", 
+                      comment.char = "#",
+                      colClasses = c("character", rep("numeric",3)))
+# wrap-around for crowding near 0 RA
+crowdA$ra <- if_else(crowdA$ra - target$ra > 180, crowdA$ra - 360, crowdA$ra) 
+# wrap-around for crowding near 360 RA
+crowdA$ra <- if_else(target$ra - crowdA$ra > 180, crowdA$ra + 360, crowdA$ra)
+
+
+# function to check for crowding
+crowd <- function(x, y, z, a, b, c) {
+  sum(abs(x - a) < resol
+  & abs(y - b) < resol
+  & c - z < dynamic_range)
+}
+
+
+# function to calculate rating. Uses Oisin's routine
+rating <- function(gr, rr, ir) {
+  gt <- g
+  rt <- r
+  it <- i
+  delta.CS <- (gt - rt) - (gr - rr)
+  delta.CL <- (rt - it) - (rr - ir)
+  RS <- 1 - abs(delta.CS / M)
+  RL <- 1 - abs(delta.CL / M)
+  RS * RL
+}
+
+# looks for crowding
+for (q in dim(A)[1]:1) {
+  if (crowd(A$ra[q], A$dec[q], A$psfmag_r[q], crowdA$ra, crowdA$dec, crowdA$psfmag_r) > 1) A <- A[-q, ]
+}
+
+object_count_crowding <- dim(A)[1]
+
+# calculate ratings for each potential reference
+ratings <- rating(A$psfmag_g, A$psfmag_r, A$psfmag_i)
+
+# add ratings to the data frame
+A <- cbind(A, ratings)
+
+##########################
+# finds all intersection points for each pair of potential references
+##########################
+A_coords <- A %>% arrange(ra) %>% select(ra, dec)
+
+swap_ij <- function(u, v){
+  i <- v
+  j <- u
+}
+
+int_pts_finder <- function(i, j) {
+  if (i < j) {
+    if (abs(A_coords$dec[i] - A_coords$dec[j]) < dec.size) {
+      if (abs(A_coords$ra[i] - A_coords$ra[j]) < ra.size)
+      {
+        ifelse(
+          A_coords$dec[i] > A_coords$dec[j],
+          z <- data.frame(
+            int_ra = c(A_coords$ra[i] + ra.size / 2,
+                       A_coords$ra[j] - ra.size / 2),
+            int_dec = c(A_coords$dec[j] + dec.size / 2,
+                        A_coords$dec[i] - dec.size / 2)
+          ),
+          z <- data.frame(
+            int_ra = c(A_coords$ra[i] + ra.size / 2,
+                       A_coords$ra[j] - ra.size / 2),
+            int_dec = c(A_coords$dec[j] - dec.size / 2,
+                        A_coords$dec[i] + dec.size / 2)
+          )
+        )
+        return(z)
+      }
+    }
+  }
+}       
+index_matrix <- expand.grid(1:dim(A)[1], 1:dim(A)[1])
+names(index_matrix) <- c("i", "j")
+int.pts <- pmap(index_matrix, int_pts_finder) %>% 
+  rbindlist() %>% 
+  filter(between(int_ra, ra-ra.size/2, ra+ra.size/2), 
+         between(int_dec, dec-dec.size/2, dec+dec.size/2)) %>%
+  distinct()
+#####################################
+
+
+
+# function that returns the score for each intersection point
+score1 <- function(X, Y) {
+  B <- A[abs(A$ra - X) <= ra.size / 2 + 0.001 & abs(A$dec - Y) <= dec.size / 2 + 0.001, ]
+  sum(B$ratings)
+}
+
+# function that returns a dataframe with all references
+# in a FOV defined by an intersection point
+score2 <- function(X, Y) {
+  A[abs(A$ra - X) <= ra.size / 2 + 0.001 & abs(A$dec - Y) <= dec.size / 2 + 0.001, ]
+}
+
+# calculates the score for each intersection point and orders them
+int.pts$score <- mapply(score1, int.pts$int_ra, int.pts$int_dec)
+int.pts <- int.pts[order(int.pts$score, decreasing = T), ]
+
+# prints out best pointing
+# usually a bunch of ties  but just picks the first one
+max.index <- which(int.pts$score == max(int.pts$score))
+final_pointing <- data.frame(
+  ra = int.pts[max.index[1], ]$int_ra,
+  dec = int.pts[max.index[1], ]$int_dec,
+  score = int.pts[max.index[1], ]$score
+)
+
+# makes data frame of reference stars for best pointing
+B <- score2(int.pts[max.index[1], "int_ra"], int.pts[max.index[1], "int_dec"])
+B <- B[with(B, order(ra)), c(1:9)]
+
+
+
+```
+
+\newpage
+
+# Example Implementation of the Locus Algorithm
+
+## Target
+
+To illustrate the workings of the Locus Algorithm, a worked example is given here. The star with SDSS ID `r ObjID` (RA = `r round(ra, 3)` and DEC = `r round(dec, 3)`) is used as the example. This star, in the constellation Aquarius, has SDSS magnitudes as given in the table below.
+
+```{r mag_table, echo = F}
+star_mags <- data.frame(Band = c("u", "g", "r", "i", "z"), SDSS_Magnitude = c(u, g, r, i, z))
+star_mags$SDSS_Magnitude %<>% round(., 2) 
+kable(star_mags)
+```
+
+The telescope system considered has parameters given in the table below:
+
+```{r telescope, echo = FALSE, message = FALSE, warning = FALSE, tidy = FALSE}
+telescope <- data.frame(Parameters = c("Field of View in minutes",
+                                       "Resolution Limit in minutes",
+                                       "Dynamic Range in magnitudes"),
+                        Values = c(dec.size*60, resol*60, dynamic_range)) 
+telescope %>%  kable()
+```
+
+## Candidate Zone
+
+The size of the FoV is, by equation 1 above, 
+
+$$R^` = {\frac{R}{cos(Dec_c)}}$$
+
+\center = `r round(dec.size*60, 3)` / cos(`r round(dec, 3)` $^{\circ}$) \center
+
+\center = `r signif(dec.size / cos(dec*pi/180), 3)` $^{\circ}$ \center
+
+
+\begin{flushleft}The locus of the target is, by equation 2 above, \end{flushleft}
+
+\center `r signif(ra - ra.size/2, 5)` $\leq$ RA $\leq$ `r signif(ra + ra.size/2, 5)` \center
+\center `r signif(dec - dec.size/2, 5)` $\leq$ Dec $\leq$ `r signif(dec + dec.size/2, 5)` \center
+
+\begin{flushleft}The candidate zone is, by equation 3 above, \end{flushleft}
+
+\center `r signif(ra - ra.size, 5)` $\leq$ RA $\leq$ `r signif(ra + ra.size, 5)` \center
+\center `r signif(dec - dec.size, 5)` $\leq$ Dec $\leq$ `r signif(dec + dec.size, 5)` \center
+
+\newpage
+
+## Identification and Filtering of Reference Stars
+
+\begin{flushleft}The potential reference stars are selected as follows:\end{flushleft}
+
+* Position: Within the Candidate Zone, SDSS records `r Object_Count` separate objects.
+* Magnitude: the reference star must be within the dynamic range, `r dynamic_range`, of the target's magnitude of `r round(r, 3)`. This leaves `r Magnitude_Count` potential references.
+* Colour: the reference star must match the colour of the target to within a user-specified limit. In this case this means $g - r$  between `r round(g-r-M, 3)` and `r round(g-r+M, 3)` and $r - i$  between `r round(r-i-M, 3)` and `r round(r-i+M, 3)` This leaves `r Colour_Count` potential references.
+* Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit, in this case `r signif(resol*3600, 2)` arc seconds. Any object this close to a potential reference star and with an r-band magnitude which is `r crowd_mag_limit` magnitudes greater than the potential reference or brighter will pollute the light from the potential reference star. This leaves `r object_count_crowding` potential references.
+
+These numbers are presented in the table below.
+
+```{r filter_table, echo = F}
+reference_numbers <- data.frame(filters = c("Position, in Field of View", 
+                                            "Correct Magnitude", 
+                                            "Correct Colour",
+                                            "Resolvable", 
+                                            "In Final Field of View"), 
+                                numbers = c(Object_Count, 
+                                            Magnitude_Count,
+                                            Colour_Count, 
+                                            object_count_crowding,
+                                            dim(B)[1]))
+kable(reference_numbers)
+```
+
+\newpage
+
+The locus associated with each of these `r object_count_crowding` potential references is identified and the Points of Intersection associated with these locii are calculated. This leads to the situation shown in the diagram below
+
+```{r candidate_plot, echo=F, message=F, warning=F}
+int.pts %>% ggplot(aes(x = -int_ra, y = int_dec)) + 
+  geom_point(fill = "black", colour = "black", size = 0.5) + #intersection points in black
+  geom_tile(data = data.frame(ra=ra, dec=dec), 
+            aes(x=-ra, y=dec), 
+            width=2*ra.size, 
+            height=2*dec.size, 
+            alpha=0, size = 2,
+            colour = "#009E73") + ### candidate zone in green
+  geom_point(data = A, aes(-ra, dec), colour = "red") + ### potential references in red
+  geom_tile(data = A, aes(-ra, dec), 
+            width=ra.size, 
+            height=dec.size, 
+            colour="blue", 
+            alpha=0) + ### locii in blue
+  geom_point(data = data.frame(ra=ra, dec=dec), 
+             aes(-ra, dec), size=4, 
+             colour="#009E73", fill = "#009E73") + ### target in green
+  labs(caption="Plot Showing the Target (Green Circle), \nPotential Reference Stars (Red Circles), \nAssociated Locii (Blue Squares), \nand Points of Intersection (Black Dots). \nThe Candidate Zone is Shown by the Green Square") + 
+  ylab("Dec") +
+  xlab("RA") +
+  theme_minimal()
+```
+
+After checking different fields of view, a pointing with RA = `r round(final_pointing$ra, 4)` and DEC = `r round(final_pointing$dec, 4)` included both the target and `r dim(B)[1]` reference stars. This pointing is calculated to have a score of `r signif(final_pointing$score, 3)`
+\newpage
+
+\begin{flushleft}
+
+The SQL query to download potential reference stars from SDSS is given below. This SQL query is run on the CAS database, release DR15, of SDSS. Note the flags to give clean photometry (@Aguado2018)
+\vskip 0.2in
+\noindent `r  mySqlQuery1`
+\vskip 0.2in
+
+\end{flushleft}
+
+A table with the reference stars in the final field of view is given below:
+
+```{r reference_table, warning = F, message = F, echo = F}
+B %>% 
+  mutate_if(is.numeric, round, 3) %>% 
+#  select(-objID) %>% 
+  rename_at(vars(starts_with("psfmag")), funs(str_replace(., "psfmag", "mag"))) %>% 
+  kable()
+```
+
+```{r locus_plot, echo = FALSE, message = FALSE, warning = FALSE}
+extra = 0.02
+B %>% ggplot(aes(x=ra, y=dec)) +
+    geom_point(aes(color=-ratings),size=3) +
+    geom_tile(data=final_pointing, 
+              aes(x=-ra, y=dec), 
+              width=ra.size, height=dec.size,
+              alpha=0, colour="black") +
+    geom_text(aes(label=rownames(B)), 
+              size=4, colour="red",
+              nudge_x=0.005, nudge_y=0.005) +
+    geom_point(data=final_pointing, size=4, 
+               colour="darkgreen", shape=1) +
+    geom_point(data=target, 
+               aes(x=-ra, y=dec), color = "yellow") +
+    geom_text(data=final_pointing,
+              label = "Pointing", col="darkgreen",
+              nudge_x=0.005, nudge_y=0.005) +
+    geom_text(data=target,
+              label = "Target", col="yellow",
+              nudge_x=-0.005, nudge_y=-0.005) +
+    xlim(final_pointing$ra + ra.size/2 + extra, 
+         final_pointing$ra - ra.size/2 - extra) + 
+    geom_rect(mapping = aes(xmin = final_pointing$ra + ra.super/2, 
+              xmax = final_pointing$ra - ra.super/2,
+              ymin = final_pointing$dec - dec.super/2,
+              ymax = final_pointing$dec + dec.super/2),
+              color = "firebrick4", alpha=0) + 
+    theme_minimal()
+
+```
+
+\newpage
+
+## References
+
