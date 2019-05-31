@@ -1,6 +1,7 @@
 ---
 title: "The Locus Algorithm"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
+geometry: "left=4cm, right=3cm, top=2.5cm, bottom=2.5cm"
 author:
   - name: O. Creaner
     email:  creanero@cp.dias.ie
@@ -159,6 +160,8 @@ Subsequent to identification, each Point of Intersection is then scored. This is
 
 ![Figure 5: Locus Algorithm. Target: white star.  Pointing & FoV: blue.  Reference stars and their loci: Fully in the FoV: greens.  On the edge of the FoV: yellows.  Outside FoV: reds](fig5.png)
 
+\newpage
+
 Scenarios can arise which result in an inability to identify an optimum pointing for a given target for example if there are no, or a maximum of one reference stars in the candidate zone; and if no points of intersection arise – a scenario which can arise if two (or more) reference fall in one quadrant of the candidate zone resulting in concentric loci, or where reference stars are too far apart in different quadrants of the candidate zone in order for their loci to intersect. All four of these scenarios are considered in practical implementations of the locus algorithm aimed at identifying the optimum pointings for a set of targets in a catalogue or list of targets.
 
 In summary, the Locus Algorithm successfully identifies the RA and Dec coordinates of the optimum pointing for a given target, where optimum means a field of view with the maximum number of reference stars which are similar in magnitude and colour to the target.
@@ -169,26 +172,22 @@ In summary, the Locus Algorithm successfully identifies the RA and Dec coordinat
 require(RCurl)
 require(tidyverse)
 require(magrittr)
-require(beepr)
 require(knitr)
-require(Biobase)
-require(printr)
-#require(kableExtra)
+require(data.table)
 #################################
 
-ObjID <- "1237680117417115655" # star
+
 ```
 
 ```{r locus, echo = F, message=FALSE, warning=F, cache = T}
-
+ObjID <- "1237680117417115655" # star
 # SQL that downloads some info on the chosen target from SDSS.
 # ObjID from SDSS specifies the target
-targetSqlQuery <- paste("select top 10 ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z
-from star where ObjID = ", ObjID)
+targetSqlQuery <- paste("SELECT top 10 ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z FROM star WHERE ObjID = ", ObjID)
 
 # downloads target data
 # dataframe target has necessary info
-targetSqlQuery <- gsub(pattern = "\n", replacement = " ", x = targetSqlQuery)
+targetSqlQuery <- str_squish(targetSqlQuery)
 urlBase <- "http://skyserver.sdss.org/dr15/SkyserverWS/SearchTools/SqlSearch?"
 X <- getForm(urlBase, cmd = targetSqlQuery, format = "csv")
 target <- read.table(text = X, header = TRUE, sep = ",", dec = ".", comment.char = "#")
@@ -216,19 +215,20 @@ crowd_mag_limit <- 5
 '%+%' <- function(x,y) paste(x,y,sep="")
 
 # SQL that counts objects in reference area
-mySqlQuery <- paste("SELECT objID, ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z
+mySqlQuery <- str_glue(
+"SELECT objID, ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z
 FROM photoObj
-WHERE (ra between (", ra - ra.size, ") AND (", ra + ra.size, ")
-OR ra BETWEEN (", 360 + ra - ra.size, ") AND (", 360 + ra + ra.size, ")
-OR ra BETWEEN (", -360 + ra - ra.size, ") AND (", -360 + ra + ra.size, "))
-AND dec BETWEEN (", dec - dec.size, ") AND (", dec + dec.size, ")
+WHERE (ra between ({ra - ra.size}) AND ({ra + ra.size})
+OR ra BETWEEN ({360 + ra - ra.size}) AND ({360 + ra + ra.size})
+OR ra BETWEEN ({-360 + ra - ra.size}) AND ({-360 + ra + ra.size}))
+AND dec BETWEEN ({dec - dec.size}) AND ({dec + dec.size})
 AND clean = 1
-AND (calibStatus_r & 1) != 0", sep = " ")
+AND (calibStatus_r & 1) != 0")
 
 # reads in data from SDSS.
 # just counting how many objects in field
 # doesn't care about mags
-mySqlQuery <- gsub(pattern = "\n", replacement = " ", x = mySqlQuery)
+mySqlQuery <- str_squish(mySqlQuery)
 X <- getForm(urlBase, cmd = mySqlQuery, format = "csv")
 in_frame <- read.table(text = X, 
                 header = TRUE, 
@@ -244,25 +244,26 @@ Colour_Range <- Magnitude_Range %>%
   filter(between((psfmag_g - psfmag_r) , g - r - M, g - r + M)) %>% 
   filter(between((psfmag_r - psfmag_i), r - i - M, r - i + M))
 Colour_Count <- dim(Colour_Range)[1]
+
 # SQL query that downloads data from SDSS for objects
 # potentially in the same field as the target
-mySqlQuery1 <-paste("SELECT objID, ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z
-FROM photoObj
-WHERE (ra between (", ra - ra.size, ") AND (", ra + ra.size, ")
-OR ra BETWEEN (", 360 + ra - ra.size, ") AND (", 360 + ra + ra.size, ")
-OR ra BETWEEN (", -360 + ra - ra.size, ") AND (", -360 + ra + ra.size, "))
-AND dec BETWEEN (", dec - dec.size, ") AND (", dec + dec.size, ")
-AND psfmag_r BETWEEN ", r - dynamic_range, " AND ", r + dynamic_range, " 
-AND (psfmag_g - psfmag_r) BETWEEN (", g - r - M, ") AND (", g - r + M, ")
-AND (psfmag_r - psfmag_i) BETWEEN (", r - i - M, ") AND (", r - i + M, ")
-AND clean = 1
-AND (calibStatus_r & 1) != 0",
-sep = " ")
+mySqlQuery1 <-str_glue(
+"SELECT objID, ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z\n
+FROM photoObj\n
+WHERE (ra between ({ra - ra.size}) AND ({ra + ra.size})\n
+OR ra BETWEEN ({360 + ra - ra.size}) AND ({360 + ra + ra.size})\n
+OR ra BETWEEN ({-360 + ra - ra.size}) AND ({-360 + ra + ra.size})\n)
+AND dec BETWEEN ({dec - dec.size}) AND ({dec + dec.size})\n
+AND psfmag_r BETWEEN {r - dynamic_range} AND { r + dynamic_range} \n
+AND (psfmag_g - psfmag_r) BETWEEN ({g - r - M}) AND ({g - r + M})\n
+AND (psfmag_r - psfmag_i) BETWEEN ({r - i - M}) AND ({r - i + M})\n
+AND clean = 1\n
+AND (calibStatus_r & 1) != 0")
 
 # reads in data from SDSS.
 # dataframe called A has all the details
-mySqlQuery <- gsub(pattern = "\n", replacement = " ", x = mySqlQuery1)
-mySqlQuery1 <- gsub(pattern = "\n", replacement = "  \n", x = mySqlQuery1)
+mySqlQuery <- str_squish(mySqlQuery1)
+
 X <- getForm(urlBase, cmd = mySqlQuery, format = "csv")
 A <- read.table(text = X, 
                 header = TRUE, 
@@ -280,17 +281,16 @@ A$ra <- if_else(target$ra - A$ra > 180, A$ra + 360, A$ra)
 
 # SQL query that downloads data from SDSS for objects
 # potentially crowding the references
-crowdingSqlQuery <- paste("select objID, ra, dec, psfmag_r from photoObj
-                   where
-                   (ra between (", ra - ra.size, ") and (", ra + ra.size, ")
-                   or ra between (", 360 + ra - ra.size, ") and (", 360 + ra + ra.size, ")
-                   or ra between (", -360 + ra - ra.size, ") and (", -360 + ra + ra.size, "))
-                   and dec between (", dec - dec.size, ") and (", dec + dec.size, ")
-                   and psfmag_r < ", r + crowd_mag_limit, 
-                   "AND clean = 1
-                   AND (calibStatus_r & 1) != 0", 
-                   sep = " ")
-crowdingSqlQuery <- gsub(pattern = "\n", replacement = " ", x = crowdingSqlQuery)
+
+crowdingSqlQuery <- str_glue(
+"SELECT objID, ra, dec, psfmag_r FROM photoObj
+WHERE (ra between ({ra - ra.size}) AND ({ra + ra.size})
+OR ra between ({360 + ra - ra.size}) AND ({360 + ra + ra.size})
+OR ra between ({-360 + ra - ra.size}) AND ({-360 + ra + ra.size}))
+AND dec between ({dec - dec.size}) AND ({dec + dec.size})
+AND psfmag_r < {r + crowd_mag_limit} AND clean = 1
+AND (calibStatus_r & 1) != 0")
+crowdingSqlQuery <- str_squish(crowdingSqlQuery)
 crowd <- getForm(urlBase, cmd = crowdingSqlQuery, format = "csv")
 crowdA <- read.table(text = crowd, 
                       header = TRUE, 
@@ -311,19 +311,6 @@ crowd <- function(x, y, z, a, b, c) {
   & c - z < dynamic_range)
 }
 
-# functions that find intersection points
-X1 <- function(x1, x2) {
-  min(x1, x2) + ra.size / 2
-}
-Y1 <- function(y1, y2) {
-  max(y1, y2) - dec.size / 2
-}
-X2 <- function(x1, x2) {
-  max(x1, x2) - ra.size / 2
-}
-Y2 <- function(y1, y2) {
-  min(y1, y2) + dec.size / 2
-}
 
 # function to calculate rating. Uses Oisin's routine
 rating <- function(gr, rr, ir) {
@@ -350,25 +337,50 @@ ratings <- rating(A$psfmag_g, A$psfmag_r, A$psfmag_i)
 # add ratings to the data frame
 A <- cbind(A, ratings)
 
+##########################
 # finds all intersection points for each pair of potential references
-x1 <- as.vector(sapply(A$ra, function(x) {
-  mapply(X1, x, A$ra)
-}))
-x2 <- as.vector(sapply(A$ra, function(x) {
-  mapply(X2, x, A$ra)
-}))
-y1 <- as.vector(sapply(A$dec, function(x) {
-  mapply(Y1, x, A$dec)
-}))
-y2 <- as.vector(sapply(A$dec, function(x) {
-  mapply(Y2, x, A$dec)
-}))
+##########################
+A_coords <- A %>% arrange(ra) %>% select(ra, dec)
 
-# creates dataframe with all these intersection points
-x <- c(x1, x1, x2, x2)
-y <- c(y1, y2, y1, y2)
-int.pts <- data.frame(x, y)
-names(int.pts) <- c("ra", "dec")
+swap_ij <- function(u, v){
+  i <- v
+  j <- u
+}
+
+int_pts_finder <- function(i, j) {
+  if (i < j) {
+    if (abs(A_coords$dec[i] - A_coords$dec[j]) < dec.size) {
+      if (abs(A_coords$ra[i] - A_coords$ra[j]) < ra.size)
+      {
+        ifelse(
+          A_coords$dec[i] > A_coords$dec[j],
+          z <- data.frame(
+            int_ra = c(A_coords$ra[i] + ra.size / 2,
+                       A_coords$ra[j] - ra.size / 2),
+            int_dec = c(A_coords$dec[j] + dec.size / 2,
+                        A_coords$dec[i] - dec.size / 2)
+          ),
+          z <- data.frame(
+            int_ra = c(A_coords$ra[i] + ra.size / 2,
+                       A_coords$ra[j] - ra.size / 2),
+            int_dec = c(A_coords$dec[j] - dec.size / 2,
+                        A_coords$dec[i] + dec.size / 2)
+          )
+        )
+        return(z)
+      }
+    }
+  }
+}       
+index_matrix <- expand.grid(1:dim(A)[1], 1:dim(A)[1])
+names(index_matrix) <- c("i", "j")
+int.pts <- pmap(index_matrix, int_pts_finder) %>% 
+  rbindlist() %>% 
+  filter(between(int_ra, ra-ra.size/2, ra+ra.size/2), 
+         between(int_dec, dec-dec.size/2, dec+dec.size/2)) %>%
+  distinct()
+#####################################
+
 
 
 # function that returns the score for each intersection point
@@ -384,21 +396,23 @@ score2 <- function(X, Y) {
 }
 
 # calculates the score for each intersection point and orders them
-int.pts$score <- mapply(score1, int.pts$ra, int.pts$dec)
+int.pts$score <- mapply(score1, int.pts$int_ra, int.pts$int_dec)
 int.pts <- int.pts[order(int.pts$score, decreasing = T), ]
 
 # prints out best pointing
 # usually a bunch of ties  but just picks the first one
 max.index <- which(int.pts$score == max(int.pts$score))
 final_pointing <- data.frame(
-  ra = int.pts[max.index[1], ]$ra,
-  dec = int.pts[max.index[1], ]$dec,
+  ra = int.pts[max.index[1], ]$int_ra,
+  dec = int.pts[max.index[1], ]$int_dec,
   score = int.pts[max.index[1], ]$score
 )
 
 # makes data frame of reference stars for best pointing
-B <- score2(int.pts[max.index[1], "ra"], int.pts[max.index[1], "dec"])
+B <- score2(int.pts[max.index[1], "int_ra"], int.pts[max.index[1], "int_dec"])
 B <- B[with(B, order(ra)), c(1:9)]
+
+
 
 ```
 
@@ -406,7 +420,11 @@ B <- B[with(B, order(ra)), c(1:9)]
 
 # Example Implementation of the Locus Algorithm
 
-To illustrate the workings of the Locus Algorithm, a worked example is given here. The star with SDSS ID `r ObjID` (RA = `r round(ra, 2)` and DEC = `r round(dec, 2)`) is used as the example. This star has SDSS magnitudes as given in the table below.
+To illustrate the workings of the Locus Algorithm, a worked example is given here. This is implemented in the R programming language and is geared for reproducible research. The code is available on _**[github](https://github.com/eugene100hickey/LocusAlgorithm)**_. It can be trivially adapted for differnet target stars and telescope parameters.
+
+## Target
+
+The star with SDSS ID `r ObjID` (RA = `r round(ra, 3)` and DEC = `r round(dec, 3)`) is used as the example. This star, in the constellation Aquarius, has SDSS magnitudes as given in the table below.
 
 ```{r mag_table, echo = F}
 star_mags <- data.frame(Band = c("u", "g", "r", "i", "z"), SDSS_Magnitude = c(u, g, r, i, z))
@@ -424,15 +442,39 @@ telescope <- data.frame(Parameters = c("Field of View in minutes",
 telescope %>%  kable()
 ```
 
+## Candidate Zone
+
+The size of the FoV is, by equation 1 above, 
+
+$$R^` = {\frac{R}{cos(Dec_c)}}$$
+
+\center = `r round(dec.size*60, 3)` / cos(`r round(dec, 3)` $^{\circ}$) \center
+
+\center = `r signif(dec.size / cos(dec*pi/180), 3)` $^{\circ}$ \center
+
+
+The locus of the target is, by equation 2 above,
+
+\center $ `r round(ra - ra.size/2, 3)` $\leq$ RA $\leq$ `r round(ra + ra.size/2, 3)` $ \center
+\center `r round(dec - dec.size/2, 3)` $\leq$ Dec $\leq$ `r round(dec + dec.size/2, 3)` \center
+
+The candidate zone is, by equation 3 above,
+
+\center `r round(ra - ra.size, 3)` $\leq$ RA $\leq$ `r round(ra + ra.size, 3)` \center
+\center `r round(dec - dec.size, 3)` $\leq$ Dec $\leq$ `r round(dec + dec.size, 3)` \center
+
+\newpage
+
+## Identification and Filtering of Reference Stars
 
 The potential reference stars are selected as follows:
 
-* Position: Within the Candidate Zone, SDSS records `r Object_Count` separate objects.
+* Position: Within the Candidate Zone, SDSS records `r Object_Count` separate objects with clean photometry.
 * Magnitude: the reference star must be within the dynamic range, `r dynamic_range`, of the target's magnitude of `r round(r, 3)`. This leaves `r Magnitude_Count` potential references.
 * Colour: the reference star must match the colour of the target to within a user-specified limit. In this case this means $g - r$  between `r round(g-r-M, 3)` and `r round(g-r+M, 3)` and $r - i$  between `r round(r-i-M, 3)` and `r round(r-i+M, 3)` This leaves `r Colour_Count` potential references.
-* Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit, in this case `r signif(resol*3600, 2)` arc seconds. Any object this close to a potential reference star and with an r-band magnitude which is `r crowd_mag_limit` magnitudes greater than the potential reference or brighter will pollute the light from the potential reference star. This leaves `r object_count_crowding` potential references.
+* Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit, in this case `r signif(resol*3600, 2)` arc seconds, (`r signif(resol*60, 2)` arc minutes). Any object this close to a potential reference star and with an r-band magnitude which is `r crowd_mag_limit` magnitudes greater than the potential reference or brighter will pollute the light from the potential reference star. This leaves `r object_count_crowding` potential references.
 
-After checking different fields of view, a pointing with RA = `r round(final_pointing$ra, 2)` and DEC = `r round(final_pointing$dec, 2)` included both the target and `r dim(B)[1]` reference stars. These numbers are presented in the table below.
+These numbers are presented in the table below.
 
 ```{r filter_table, echo = F}
 reference_numbers <- data.frame(filters = c("Position, in Field of View", 
@@ -450,10 +492,40 @@ kable(reference_numbers)
 
 \newpage
 
+The locus associated with each of these `r object_count_crowding` potential references is identified and the Points of Intersection associated with these locii are calculated. This leads to the situation shown in the diagram below
+
+```{r candidate_plot, echo=F, message=F, warning=F}
+int.pts %>% ggplot(aes(x = -int_ra, y = int_dec)) + 
+  geom_point(fill = "#000000", colour = "#000000", size = 0.8) + #intersection points in black
+  geom_tile(data = data.frame(ra=ra, dec=dec), 
+            aes(x=-ra, y=dec), 
+            width=2*ra.size, 
+            height=2*dec.size, 
+            alpha=0, size = 1.5,
+            alpha = 0.5,
+            colour = "#009E73") + ### candidate zone in green
+  geom_point(data = A, aes(-ra, dec), colour = "red") + ### potential references in red
+  geom_tile(data = A, aes(-ra, dec), 
+            width=ra.size, 
+            height=dec.size, 
+            colour="blue", 
+            alpha=0) + ### locii in blue
+  geom_point(data = data.frame(ra=ra, dec=dec), 
+             aes(-ra, dec), size=4, 
+             colour="#009E73", fill = "#009E73") + ### target in green
+  labs(caption="Plot Showing the Target (Green Circle), \nPotential Reference Stars (Red Circles), \nAssociated Locii (Blue Squares), \nand Points of Intersection (Black Dots). \nThe Candidate Zone is Shown by the Green Square") + 
+  ylab("Dec") +
+  xlab("RA") +
+  theme_minimal()
+```
+
+After checking different fields of view, a pointing with RA = `r round(final_pointing$ra, 3)` and DEC = `r round(final_pointing$dec, 3)` included both the target and `r dim(B)[1]` reference stars. This pointing is calculated to have a score of `r signif(final_pointing$score, 3)`
+\newpage
+
 The SQL query to download potential reference stars from SDSS is given below. This SQL query is run on the CAS database, release DR15, of SDSS. Note the flags to give clean photometry (@Aguado2018)
-
-
-`r  mySqlQuery1`
+\vskip 0.2in
+\noindent `r  mySqlQuery1`
+\vskip 0.2in
 
 
 A table with the reference stars in the final field of view is given below:
@@ -468,34 +540,63 @@ B %>%
 
 ```{r locus_plot, echo = FALSE, message = FALSE, warning = FALSE}
 extra = 0.02
-B %>% ggplot(aes(x=ra, y=dec)) +
-    geom_point(aes(color=-ratings),size=3) +
-    geom_tile(data=final_pointing, 
-              aes(x=-ra, y=dec), 
-              width=ra.size, height=dec.size,
-              alpha=0, colour="black") +
-    geom_text(aes(label=rownames(B)), 
-              size=4, colour="red",
-              nudge_x=0.005, nudge_y=0.005) +
-    geom_point(data=final_pointing, size=4, 
-               colour="green", shape=1) +
-    geom_point(data=target, 
-               aes(x=-ra, y=dec), color = "yellow") +
-    geom_text(data=final_pointing,
-              label = "Pointing", col="green",
-              nudge_x=0.005, nudge_y=0.005) +
-    geom_text(data=target,
-              label = "Target", col="yellow",
-              nudge_x=-0.005, nudge_y=-0.005) +
-    xlim(final_pointing$ra + ra.size/2 + extra, 
-         final_pointing$ra - ra.size/2 - extra) + 
-    geom_rect(mapping = aes(xmin = final_pointing$ra + ra.super/2, 
-              xmax = final_pointing$ra - ra.super/2,
-              ymin = final_pointing$dec - dec.super/2,
-              ymax = final_pointing$dec + dec.super/2),
-              color = "firebrick4", alpha=0) + 
-    theme_minimal()
-
+mysubtitle <- str_glue("The Field of View for SDSS{ObjID}, showing the star itself in black,
+                       \nthe telescope pointing in green, 
+                       \nand the discovered reference stars graded by their ratings.
+                       \nNote that the RA runs in the direction consistent with SDSS")
+B %>% ggplot(aes(x = ra, y = dec)) +
+  geom_point(aes(color = -ratings), size = 3) +
+  geom_tile(
+    data = final_pointing,
+    aes(x = -ra, y = dec),
+    width = ra.size,
+    height = dec.size,
+    alpha = 0,
+    colour = "black"
+  ) +
+  geom_text(
+    aes(label = rownames(B)),
+    size = 4,
+    colour = "red",
+    nudge_x = 0.005,
+    nudge_y = 0.005
+  ) +
+  geom_point(
+    data = final_pointing,
+    size = 4,
+    colour = "darkgreen",
+    shape = 1
+  ) +
+  geom_point(data = target,
+             aes(x = -ra, y = dec), color = "black") +
+  geom_text(
+    data = final_pointing,
+    label = "Pointing",
+    col = "darkgreen",
+    nudge_x = 0.005,
+    nudge_y = 0.005
+  ) +
+  geom_text(
+    data = target,
+    label = "Target",
+    col = "black",
+    nudge_x = -0.005,
+    nudge_y = -0.005
+  ) +
+  xlim(final_pointing$ra + ra.size / 2 + extra,
+       final_pointing$ra - ra.size / 2 - extra) +
+  geom_rect(
+    mapping = aes(
+      xmin = final_pointing$ra + ra.super / 2,
+      xmax = final_pointing$ra - ra.super / 2,
+      ymin = final_pointing$dec - dec.super / 2,
+      ymax = final_pointing$dec + dec.super / 2
+    ),
+    color = "firebrick4",
+    alpha = 0
+  ) +
+  labs(subtitle = mysubtitle) +
+  theme_minimal() 
 ```
 
 \newpage
