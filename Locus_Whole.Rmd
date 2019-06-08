@@ -435,8 +435,8 @@ final_pointing <- data.frame(
 B <- score2(int.pts[max.index[1], "int_ra"], int.pts[max.index[1], "int_dec"])
 B <- B[with(B, order(ra)), c(1:9)]
 
-
-
+corner1 <- which(A$objID == int.pts$objID_i[1])
+corner2 <- which(A$objID == int.pts$objID_j[1])
 ```
 
 \newpage
@@ -531,8 +531,6 @@ A %>%
   kable_styling(full_width = F) %>%
   row_spec(which(final_stars), bold = T, color = "white", background = "#D7261E")
 
-corner1 <- which(A$objID == int.pts$objID_i[1])
-corner2 <- which(A$objID == int.pts$objID_j[1])
 ```
 
 
@@ -540,7 +538,7 @@ The table above also includes ratings for each star. This gives a measure of how
 
 $$rating = \abs{(1-\frac{\delta g - \delta r}{M})} \times \abs{(1-\frac{\delta r - \delta i}{M})}$$
 
-Where $\delta r$ stand for the difference between the r-band magnitude for the target and the reference star and M is the colour match limit.
+Where $\delta r$ stand for the difference between the r-band magnitude for the target and the reference star and M is the colour match limit. Similarly for $\delta g$ and $\delta i$.
 
 For example, the star SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N) has g$_r$ = `r round(A$psfmag_g[corner1], 3)`, r$_r$ = `r round(A$psfmag_r[corner1], 3)`, and i$_r$ = `r round(A$psfmag_i[corner1], 3)`. This compares to the target magnitudes of g$_t$ = `r round(g, 3)`, r$_t$ = `r round(r, 3)`, and i$_t$ = `r round(i, 3)`.
 
@@ -575,7 +573,7 @@ Dec~r~ `r ifelse(A$dec[corner1]>dec, print(">"), print("<"))` Dec~t~ =>  DirDec 
 \vskip 0.2in
 For reference SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N)
 \vskip 0.2in
-`r  round(A$ra[corner1], 4) ` < `r round(ra, 4)` => DirDec = +ive,   
+`r  round(A$ra[corner1], 4) ` `r ifelse(A$ra[corner1]>ra, print(">"), print("<"))` `r round(ra, 4)` => DirDec = `r ifelse(A$ra[corner1]>ra, print("-"), print("+"))`ive,   
 `r  round(A$dec[corner1], 4) ` < `r round(dec, 4)`   =>  DirRA = +ive
 \vskip 0.2in
 Repeating this calculation for  SDSS`r A$objID[corner2]` (Star `r rownames(A)[corner2]` on figure N) gives 
@@ -587,8 +585,8 @@ DirRA = `r ifelse(A$ra[corner2]>ra, print("-"), print("+"))`ive, DirDec = `r ife
 We can compare these two effective loci to see if they intersect to form a valid PoI.
 \vskip 0.2in
 From Expression 10:
-DirRA`r rownames(A)[corner1]` = +ive, DirDec`r rownames(A)[corner2]`=+ive
-RA~r~`r rownames(A)[corner1]`> RA~r~`r rownames(A)[corner1]` AND Dec~r~`r rownames(A)[corner1]` < Dec~r~`r rownames(A)[corner1]`
+DirRA`r rownames(A)[corner1]` = `r ifelse(A$ra[corner1]>ra, print("-"), print("+"))`ive, DirDec`r rownames(A)[corner2]`=`r ifelse(A$ra[corner2]>ra, print("-"), print("+"))`ive
+RA~r~`r rownames(A)[corner1]` `r ifelse(A$ra[corner1]>A$ra[corner2], print(">"), print("<"))` RA~r~`r rownames(A)[corner2]` AND Dec~r~`r rownames(A)[corner1]` `r ifelse(A$dec[corner1]>A$dec[corner2], print(">"), print("<"))` Dec~r~`r rownames(A)[corner2]`
 
 PoI exist at (RA~c~`r rownames(A)[corner1]`, Dec~c~`r rownames(A)[corner1]`) =  (`r round(int.pts$int_ra[1], 4)`,  `r round(int.pts$int_dec[1], 4)`)
 \vskip 0.2in
