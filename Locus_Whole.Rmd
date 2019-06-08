@@ -46,6 +46,8 @@ header-includes:
 - \usepackage[normalem]{ulem}
 - \usepackage{makecell}
 - \usepackage{xcolor}
+- \usepackage{commath}
+- \usepackage{amsmath}
 ---
 
 
@@ -529,10 +531,27 @@ A %>%
   kable_styling(full_width = F) %>%
   row_spec(which(final_stars), bold = T, color = "white", background = "#D7261E")
 
-corner1 <- 14
-corner2 <- 11
+corner1 <- which(A$objID == int.pts$objID_i[1])
+corner2 <- which(A$objID == int.pts$objID_j[1])
 ```
 
+
+The table above also includes ratings for each star. This gives a measure of how close, spectrally, each reference star is to the target. This rating hasn't been optimised and is the subject of further research by our group, but for the purpose of this work was calculated as follows:
+
+$$rating = \abs{(1-\frac{\delta g - \delta r}{M})} \times \abs{(1-\frac{\delta r - \delta i}{M})}$$
+
+Where $\delta r$ stand for the difference between the r-band magnitude for the target and the reference star and M is the colour match limit.
+
+For example, the star SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N) has g$_r$ = `r round(A$psfmag_g[corner1], 3)`, r$_r$ = `r round(A$psfmag_r[corner1], 3)`, and i$_r$ = `r round(A$psfmag_i[corner1], 3)`. This compares to the target magnitudes of g$_t$ = `r round(g, 3)`, r$_t$ = `r round(r, 3)`, and i$_t$ = `r round(i, 3)`.
+
+This gives:
+$\delta g$ = `r round(A$psfmag_g[corner1], 3)` - `r round(g, 3)` = `r round(A$psfmag_g[corner1] - g, 3)`.
+$\delta r$ = `r round(A$psfmag_r[corner1], 3)` - `r round(r, 3)` = `r round(A$psfmag_r[corner1] - r, 3)`.
+$\delta i$ = `r round(A$psfmag_i[corner1], 3)` - `r round(i, 3)` = `r round(A$psfmag_i[corner1] - i, 3)`.
+Thus rating = (1 - (|`r round(A$psfmag_g[corner1] - g, 3)` - `r round(A$psfmag_r[corner1] - r, 3)`)/`r M `|) $\times$ (1 - (|`r round(A$psfmag_r[corner1] - r, 3)` - `r round(A$psfmag_i[corner1] - i, 3)`)/`r M `|)
+= (`r 1 - abs(round(A$psfmag_g[corner1] - g - A$psfmag_r[corner1] + r, 3)/M)`) $\times$ (`r 1 - abs(round(A$psfmag_r[corner1] - r - A$psfmag_i[corner1] + i, 3)/M)`)
+
+= `r round((1 - abs(A$psfmag_g[corner1] - g - A$psfmag_r[corner1] + r)/M) * (1 - abs(A$psfmag_r[corner1] - r - A$psfmag_i[corner1] + i)/M), 3)`
 
 \newpage
 
@@ -543,37 +562,41 @@ $$Dec_r < Dec_t => Dec_c = Dec_r + S$$
 
 For reference SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N)
 \vskip 0.2in
-`r  round(A$ra[corner1], 4) ` < `r round(ra, 4)` 
-$$=> RA_c$$ =  `r  round(A$ra[corner1], 4)` + `r round(ra.size/2, 4) `  = `r  round(A$ra[corner1] + ra.size/2, 4) `
-
-`r  round(A$dec[corner1], 4) ` < `r round(dec, 4)`$$ => Dec_c$$ =  `r  round(A$dec[corner1], 4)` + `r round(dec.size/2, 4) `  = `r  round(A$dec[corner1] + dec.size/2, 4) `
+`r  round(A$ra[corner1], 4) ` `r ifelse(A$ra[corner1]>ra, print(">"), print("<"))` `r round(ra, 4)` 
+=> RA~c~ =  `r  round(A$ra[corner1], 4)` `r ifelse(A$ra[corner1]>ra, print("-"), print("+"))` `r round(ra.size/2, 4) `  = `r  round(ifelse(A$ra[corner1]>ra, A$ra[corner1] - ra.size/2, A$ra[corner1] + ra.size/2), 4) `
+\vskip 0.2in
+`r  round(A$dec[corner1], 4) ` `r ifelse(A$dec[corner1]>dec, print(">"), print("<"))` `r round(dec, 4)` 
+=> Dec~c~ =  `r  round(A$dec[corner1], 4)` `r ifelse(A$dec[corner1]>dec, print("-"), print("+"))` `r round(dec.size/2, 4) `  = `r  round(ifelse(A$dec[corner1]>dec, A$dec[corner1] - dec.size/2, A$dec[corner1] + dec.size/2), 4) `
 
 
 From Expression 9:
-$$RA_r < RA_t =>  DirDec = +ive,  Dec_r < Dec_t =>  DirRA = +ive$$
+RA~r~ `r ifelse(A$ra[corner1]>ra, print(">"), print("<"))` RA~t~ =>  DirRA = `r ifelse(A$ra[corner1]>ra, print("-"), print("+"))`ive
+Dec~r~ `r ifelse(A$dec[corner1]>dec, print(">"), print("<"))` Dec~t~ =>  DirDec = `r ifelse(A$dec[corner1]>dec, print("-"), print("+"))`ive
 \vskip 0.2in
-For reference SDSS`r A$objID[corner1]` 
+For reference SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N)
 \vskip 0.2in
 `r  round(A$ra[corner1], 4) ` < `r round(ra, 4)` => DirDec = +ive,   
 `r  round(A$dec[corner1], 4) ` < `r round(dec, 4)`   =>  DirRA = +ive
 \vskip 0.2in
 Repeating this calculation for  SDSS`r A$objID[corner2]` (Star `r rownames(A)[corner2]` on figure N) gives 
-$$RA_c = $$ `r  round(A$ra[corner2] + ra.size/2, 4) `, 
-$$Dec_c = $$ `r  round(A$dec[corner2] + dec.size/2, 4) `, 
+RA~c~ = `r  ifelse(A$ra[corner2]>ra, round(A$ra[corner2] - ra.size/2, 4), round(A$ra[corner2] + ra.size/2, 4)) `, 
+Dec~c~ = `r  ifelse(A$dec[corner2]>dec, round(A$dec[corner2] - dec.size/2, 4), round(A$dec[corner2] + dec.size/2, 4)) `, 
 \vskip 0.2in
-DirRA = -ive, DirDec = +ive.  We can compare these two effective loci to see if they intersect to form a valid PoI.
+DirRA = `r ifelse(A$ra[corner2]>ra, print("-"), print("+"))`ive, DirDec = `r ifelse(A$dec[corner2]>dec, print("-"), print("+"))`ive.  
+
+We can compare these two effective loci to see if they intersect to form a valid PoI.
 \vskip 0.2in
 From Expression 10:
-DirRA9 = +ive, DirDec10=+ive
-$$RA_r9> RA_r10\;AND\; Dec_r9 < Dec_r10$$
+DirRA`r rownames(A)[corner1]` = +ive, DirDec`r rownames(A)[corner2]`=+ive
+RA~r~`r rownames(A)[corner1]`> RA~r~`r rownames(A)[corner1]` AND Dec~r~`r rownames(A)[corner1]` < Dec~r~`r rownames(A)[corner1]`
 
-PoI exist at $$(RA_c9, Dec_c10)$$ =  (`r round(int.pts$int_ra[1], 4)`,  `r round(int.pts$int_dec[1], 4)`)
+PoI exist at (RA~c~`r rownames(A)[corner1]`, Dec~c~`r rownames(A)[corner1]`) =  (`r round(int.pts$int_ra[1], 4)`,  `r round(int.pts$int_dec[1], 4)`)
 \vskip 0.2in
 From Expression 2, the FoV centred on the PoI (`r round(int.pts$int_ra[1], 4)`,  `r round(int.pts$int_dec[1], 4)`) can be calculated to be:
 
-$$RA_t - {\frac{R^`}{2}} \leq RA \leq RA_t + {\frac{R^`}{2}} $$
+$$RA_c - {\frac{R^`}{2}} \leq RA \leq RA_c + {\frac{R^`}{2}} $$
 
-$$Dec_t - {\frac{S}{2}} \leq Dec \leq Dec_t + {\frac{S}{2}}$$
+$$Dec_c - {\frac{S}{2}} \leq Dec \leq Dec_c + {\frac{S}{2}}$$
 
 `r round(int.pts$int_ra[1], 4)` - `r ra.size` $\leq$ RA $\leq$ `r round(int.pts$int_ra[1], 4)` + `r ra.size` 
 \vskip 0.2in
