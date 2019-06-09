@@ -421,6 +421,7 @@ score2 <- function(X, Y) {
 # calculates the score for each intersection point and orders them
 int.pts$score <- mapply(score1, int.pts$int_ra, int.pts$int_dec)
 int.pts <- int.pts[order(int.pts$score, decreasing = T), ]
+int.pts <- int.pts %>% filter(objID_i != ObjID, objID_j != ObjID)
 
 # prints out best pointing
 # usually a bunch of ties  but just picks the first one
@@ -448,22 +449,36 @@ To illustrate the operations of the Locus Algorithm, a worked example is given h
 ## Target
 
 The star with SDSS ID `r ObjID`, henceforth called the target, (RA = `r round(ra, 4)` and DEC = `r round(dec, 4)`) is used as the example. This star, in the constellation Aquarius, has SDSS magnitudes as given in the table below.
+\vskip 0.2in
 
 ```{r mag_table, echo = F}
 star_mags <- data.frame(Band = c("u", "g", "r", "i", "z"), SDSS_Magnitude = c(u, g, r, i, z))
 star_mags$SDSS_Magnitude %<>% round(., 2) 
-kable(star_mags)
+kable(star_mags) %>%
+  kable_styling()
 ```
 
 The observational parameters are taken from the telescope at [Blackrock Castle Observatory](www.bco.ie). This telescope has parameters given in the table below:
+\vskip 0.2in
 
 ```{r telescope, echo = FALSE, message = FALSE, warning = FALSE, tidy = FALSE}
-telescope <- data.frame(Parameters = c("Field of View in degrees",
-                                       "Resolution Limit in degrees",
-                                       "Dynamic Range in magnitudes",
-                                       "Colour Match Limit"),
-                        Values = c(dec.size*1, resol*1, dynamic_range, M)) 
-telescope %>%  kable()
+telescope <- data.frame(
+  Parameters = c(
+    "Field of View in degrees",
+    "Resolution Limit in degrees",
+    "Dynamic Range in magnitudes",
+    "Colour Match Limit"
+  ),
+  Values = c(
+    round(dec.size * 1, 4),
+    round(resol * 1, 4),
+    round(dynamic_range, 4),
+    round(M, 4)
+  )
+)
+telescope %>%
+  kable() %>%
+  kable_styling()
 ```
 
 ## Candidate Zone
@@ -499,6 +514,7 @@ The potential reference stars are selected as follows:
 * Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit, in this case `r signif(resol*3600, 2)` arc seconds, (`r signif(resol*60, 2)` arc minutes). Any object this close to a potential reference star and with an r-band magnitude which is `r crowd_mag_limit` magnitudes greater than the potential reference or brighter will pollute the light from the potential reference star. This leaves `r object_count_crowding` potential references.
 
 These numbers are presented in the table below.
+\vskip 0.2in
 
 ```{r filter_table, echo = F}
 reference_numbers <- data.frame(filters = c("Position, in Field of View", 
@@ -511,7 +527,8 @@ reference_numbers <- data.frame(filters = c("Position, in Field of View",
                                             Colour_Count, 
                                             object_count_crowding,
                                             dim(B)[1]))
-kable(reference_numbers)
+kable(reference_numbers) %>%
+  kable_styling()
 ```
 
 \vskip 0.2in
@@ -596,13 +613,13 @@ $$RA_c - {\frac{R^`}{2}} \leq RA \leq RA_c + {\frac{R^`}{2}} $$
 
 $$Dec_c - {\frac{S}{2}} \leq Dec \leq Dec_c + {\frac{S}{2}}$$
 
-`r round(int.pts$int_ra[1], 4)` - `r ra.size` $\leq$ RA $\leq$ `r round(int.pts$int_ra[1], 4)` + `r ra.size` 
+`r round(int.pts$int_ra[1], 4)` - `r round(ra.size/2, 4)` $\leq$ RA $\leq$ `r round(int.pts$int_ra[1], 4)` + `r round(ra.size/2, 4)` 
 \vskip 0.2in
-`r round(int.pts$int_dec[1], 4)` - `r dec.size` $\leq$ Dec $\leq$ `r round(int.pts$int_dec[1], 4)` + `r dec.size` 
+`r round(int.pts$int_dec[1], 4)` - `r round(dec.size/2, 4)` $\leq$ Dec $\leq$ `r round(int.pts$int_dec[1], 4)` + `r round(dec.size/2, 4)` 
 \vskip 0.2in
-`r round(int.pts$int_ra[1] - ra.size, 4)` $\leq$ RA $\leq$ `r round(int.pts$int_ra[1] + ra.size, 4) ` 
+`r round(int.pts$int_ra[1] - ra.size/2, 4)` $\leq$ RA $\leq$ `r round(int.pts$int_ra[1] + ra.size/2, 4) ` 
 \vskip 0.2in
-`r round(int.pts$int_dec[1] - dec.size, 4)` $\leq$ Dec $\leq$ `r round(int.pts$int_dec[1] + dec.size, 4)`
+`r round(int.pts$int_dec[1] - dec.size/2, 4)` $\leq$ Dec $\leq$ `r round(int.pts$int_dec[1] + dec.size/2, 4)`
 \newpage
 
 The locus associated with each of these `r object_count_crowding` potential references is identified and the Points of Intersection associated with these locii are calculated. This leads to the situation shown in the diagram below
@@ -667,6 +684,8 @@ B %>%
 
 ```{r locus_plot, echo = FALSE, message = FALSE, warning = FALSE}
 extra = 0.02
+dec.super <- dec.size
+ra.super <- ra.size
 mysubtitle <- str_glue("The Field of View for SDSS{ObjID}, showing the star itself in black,
                        \nthe telescope pointing in green, 
                        \nand the discovered reference stars graded by their ratings.
