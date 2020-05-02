@@ -29,9 +29,34 @@ abstract: |
 Keywords: Differential Photometry, Quasar, Exoplanets, Transit method
 
 journal: "Astronomy & Astrophysics"
-bibliography: /home/eugene/Desktop/Academic/Research/library.bib
-output: rticles::elsevier_article
+bibliography: library.bib
+output:
+  bookdown::pdf_document2: 
+    fig_caption: yes
+    pandoc_args: ["--extract-media", "."]
+header-includes:
+- \usepackage{caption}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{xcolor}
+- \usepackage{commath}
+- \usepackage{amsmath}
 ---
+
+```{r bibtex, echo = F, message=FALSE, warning=F, cache = F}
+download.file("https://raw.githubusercontent.com/eugene100hickey/LocusAlgorithm/master/Locus_Paper/Locus_Whole/library.bib", "library.bib")
+```
 
 
 # Introduction
@@ -46,7 +71,11 @@ The Locus Algorithm enables optimised differential photometry by identifying the
 A locus can be defined around any star such that a FoV centred on any point on the locus will include the star at the edge of the FoV. For fields containing stars close to one another, if one locus intersects with another, they produce Points of Intersection (PoIs) (Figure 1).
 
 
-![Figure 1. Diagrammatic representation of two stars with loci (red and blue perimeter lines), which intersect and produce two Points of Intersection (PoI's) circled in yellow.](fig1.png)
+
+```{r fig1, fig.cap="Diagrammatic representation of two stars with loci (red and blue perimeter lines), which intersect and produce two Points of Intersection (PoI's) circled in yellow.", echo=F}
+knitr::include_graphics('https://raw.githubusercontent.com/eugene100hickey/LocusAlgorithm/master/Locus_Paper/Locus_Whole/fig1.png')
+```
+
 
 A FoV centred on any such PoI will include both stars associated with creating it. At Points of Intersection the set of stars that can be included in a FoV changes.
 
@@ -90,7 +119,9 @@ $$Dec_c - S \leq Dec \leq Dec_c + S$$
 
 Equation 3. Definition of a Candidate Zone of size 2R x 2S centred on a target  with  coordinates ($RA_c$, $Dec_c$)
 
-![Figure 2. Modified image taken from the SDSS "Navigate" tool. The image showing fields (in red) needed to form a mosaic from which a Candidate Zone (green) centred on the target can be defined.](fig2.png)
+```{r fig2, fig.cap='Modified image taken from the SDSS "Navigate" tool. The image showing fields (in red) needed to form a mosaic from which a Candidate Zone (green) centred on the target can be defined.', echo=F}
+knitr::include_graphics('https://raw.githubusercontent.com/eugene100hickey/LocusAlgorithm/master/Locus_Paper/Locus_Whole/fig2.png')
+```
 
 ## Identification and Filtering of Reference Stars
 
@@ -108,7 +139,10 @@ All stars in the Candidate Zone which pass these initial filters become the list
 
 The locus associated with each candidate reference star must be identified based on Equation 2. For the purposes of identifying Points of Intersection, only the side surrounding a given candidate reference star closest to the target need be considered. Hence, we can define the effective locus for such a candidate reference star as a single line of constant RA and a single line of constant Dec nearest the target star (Figure 3).
 
-![Figure 3: Each effective locus is defined by assigning a pair of RA and Dec coordinates for a corner point and a pair of lines North or South and East or West from the corner point. In this diagram, each candidate reference star is assigned a colour, and the effective locus  that corresponds to it is drawn in the same colour.](fig3.png)
+
+```{r fig3, fig.cap="Each effective locus is defined by assigning a pair of RA and Dec coordinates for a corner point and a pair of lines North or South and East or West from the corner point. In this diagram, each candidate reference star is assigned a colour, and the effective locus  that corresponds to it is drawn in the same colour.", echo=F}
+knitr::include_graphics('https://raw.githubusercontent.com/eugene100hickey/LocusAlgorithm/master/Locus_Paper/Locus_Whole/fig3.png')
+```
 
 Specifically, the effective locus can be defined as a corner point of the locus and two lines: one of constant RA and the other of constant Dec emanating from the corner point. The direction of the lines is determined by the Right Ascension and Declination of the candidate reference star relative to the target; as follows:
 
@@ -129,7 +163,7 @@ $$Dec_{target} > Dec_{reference} \Rightarrow Dec_{corner-point} = Dec_{reference
 
 The direction of the lines of constant RA and Dec of the effective locus emanating from any such corner point are determined according to the criteria describe above.
 
-## Identifying and Scoring Points of Intersection and identifying the pointing.
+## Identifying and Scoring Points of Intersection and identifying the pointing
 
 The points where lines from any two loci are identified. This involves comparing the corner point RA and Dec and direction of lines for one locus with the corner point RA and Dec and direction of lines for a second locus.  In total eight variable associated with each two loci are checked:
 
@@ -151,14 +185,19 @@ Subsequent to identification, each Point of Intersection is then scored. This is
 * The Point of Intersection with the highest score becomes the pointing for the target (Figure 5).
 
 
-![Figure 4.  Points of Intersection (PoI), and their associated score. In this diagram each star has a rating of 1, hence the score associated with each PoI is equal to the number of reference stars within a FoV centred at that PoI.](fig4.png)
 
+```{r fig4, fig.cap="Points of Intersection (PoI), and their associated score. In this diagram each star has a rating of 1, hence the score associated with each PoI is equal to the number of reference stars within a FoV centred at that PoI.", echo=F}
+knitr::include_graphics('https://raw.githubusercontent.com/eugene100hickey/LocusAlgorithm/master/Locus_Paper/Locus_Whole/fig4.png')
+```
 
 <!-- ```{r} -->
 <!-- knitr::include_graphics("fig5.png") -->
 <!-- ``` -->
 
-![Figure 5: Locus Algorithm. Target: white star.  Pointing & FoV: blue.  Reference stars and their loci: Fully in the FoV: greens.  On the edge of the FoV: yellows.  Outside FoV: reds](fig5.png)
+
+```{r fig5, fig.cap="Locus Algorithm. Target: white star.  Pointing & FoV: blue.  Reference stars and their loci: Fully in the FoV: greens.  On the edge of the FoV: yellows.  Outside FoV: reds", echo=F}
+knitr::include_graphics('https://raw.githubusercontent.com/eugene100hickey/LocusAlgorithm/master/Locus_Paper/Locus_Whole/fig5.png')
+```
 
 \newpage
 
@@ -173,6 +212,7 @@ require(RCurl)
 require(tidyverse)
 require(magrittr)
 require(knitr)
+require(kableExtra)
 require(data.table)
 #################################
 
@@ -181,9 +221,13 @@ require(data.table)
 
 ```{r locus, echo = F, message=FALSE, warning=F, cache = T}
 ObjID <- "1237680117417115655" # star
+ObjID <- "1237674649391857845" #"1237648720693887182"
+ObjID <- "1237651225171067249" # green publication QSO
+# ObjID <- "1237651211213144306" # first QSO in publication 
+ObjID <- "1237651224634851622" # second QSO in publication 
 # SQL that downloads some info on the chosen target from SDSS.
 # ObjID from SDSS specifies the target
-targetSqlQuery <- paste("SELECT top 10 ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z FROM star WHERE ObjID = ", ObjID)
+targetSqlQuery <- paste("SELECT top 10 ra, dec, psfmag_u, psfmag_g, psfmag_r, psfmag_i, psfmag_z FROM photoObj WHERE ObjID = ", ObjID)
 
 # downloads target data
 # dataframe target has necessary info
@@ -206,12 +250,13 @@ ra <- target$ra
 dec <- target$dec
 M <- 0.1 # 0.1
 dec.size = 10/60 # 0.167
-dec.super = 12/60 # 0.20
+dec.super = 10.5/60 # 0.172
 ra.size = dec.size / cos(dec*pi/180)
 ra.super = dec.super / cos(dec*pi/180)
 resol <- 0.003
 dynamic_range <- 2 # 5
 crowd_mag_limit <- 5
+degree_decimals <- 4
 '%+%' <- function(x,y) paste(x,y,sep="")
 
 # SQL that counts objects in reference area
@@ -340,7 +385,7 @@ A <- cbind(A, ratings)
 ##########################
 # finds all intersection points for each pair of potential references
 ##########################
-A_coords <- A %>% arrange(ra) %>% select(ra, dec)
+A_coords <- A %>% arrange(ra) %>% select(objID, ra, dec)
 
 swap_ij <- function(u, v){
   i <- v
@@ -358,20 +403,24 @@ int_pts_finder <- function(i, j) {
             int_ra = c(A_coords$ra[i] + ra.size / 2,
                        A_coords$ra[j] - ra.size / 2),
             int_dec = c(A_coords$dec[j] + dec.size / 2,
-                        A_coords$dec[i] - dec.size / 2)
+                        A_coords$dec[i] - dec.size / 2),
+            objID_i = c(A_coords$objID[i], A_coords$objID[i]),
+            objID_j = c(A_coords$objID[j], A_coords$objID[j])
           ),
           z <- data.frame(
             int_ra = c(A_coords$ra[i] + ra.size / 2,
                        A_coords$ra[j] - ra.size / 2),
             int_dec = c(A_coords$dec[j] - dec.size / 2,
-                        A_coords$dec[i] + dec.size / 2)
+                        A_coords$dec[i] + dec.size / 2),
+            objID_i = c(A_coords$objID[i], A_coords$objID[i]),
+            objID_j = c(A_coords$objID[j], A_coords$objID[j])
           )
         )
         return(z)
       }
     }
   }
-}       
+}          
 index_matrix <- expand.grid(1:dim(A)[1], 1:dim(A)[1])
 names(index_matrix) <- c("i", "j")
 int.pts <- pmap(index_matrix, int_pts_finder) %>% 
@@ -398,6 +447,7 @@ score2 <- function(X, Y) {
 # calculates the score for each intersection point and orders them
 int.pts$score <- mapply(score1, int.pts$int_ra, int.pts$int_dec)
 int.pts <- int.pts[order(int.pts$score, decreasing = T), ]
+int.pts <- int.pts %>% filter(objID_i != ObjID, objID_j != ObjID)
 
 # prints out best pointing
 # usually a bunch of ties  but just picks the first one
@@ -412,56 +462,86 @@ final_pointing <- data.frame(
 B <- score2(int.pts[max.index[1], "int_ra"], int.pts[max.index[1], "int_dec"])
 B <- B[with(B, order(ra)), c(1:9)]
 
-
-
+corner1 <- which(A$objID == int.pts$objID_i[1])
+corner2 <- which(A$objID == int.pts$objID_j[1])
 ```
 
 \newpage
 
 # Example Implementation of the Locus Algorithm
 
-To illustrate the workings of the Locus Algorithm, a worked example is given here. This is implemented in the R programming language and is geared for reproducible research. The code is available on _**[github](https://github.com/eugene100hickey/LocusAlgorithm)**_. It can be trivially adapted for differnet target stars and telescope parameters.
+To illustrate the operations of the Locus Algorithm, a worked example is given here. The process described here in producing an optimal pointing for a given star follows the same sequence of steps described in the first part of this paper. The process is implemented in the R programming language and is geared for reproducible research. The code is available on _**[github](https://github.com/eugene100hickey/LocusAlgorithm)**_. It can be trivially adapted for different target stars and telescope parameters.
 
 ## Target
 
-The star with SDSS ID `r ObjID` (RA = `r round(ra, 3)` and DEC = `r round(dec, 3)`) is used as the example. This star, in the constellation Aquarius, has SDSS magnitudes as given in the table below.
+The star with SDSS ID `r ObjID`, henceforth called the target, (RA = `r format(round(ra, degree_decimals), nsmall = degree_decimals)` and DEC = `r format(round(dec, degree_decimals), nsmall = degree_decimals)`) is used as the example. This star, in the constellation Aquarius, has SDSS magnitudes as given in the table below.
+\vskip 0.2in
 
 ```{r mag_table, echo = F}
 star_mags <- data.frame(Band = c("u", "g", "r", "i", "z"), SDSS_Magnitude = c(u, g, r, i, z))
 star_mags$SDSS_Magnitude %<>% round(., 2) 
-kable(star_mags)
+kable(star_mags) %>%
+  kable_styling()
 ```
 
-The telescope system considered has parameters given in the table below:
+The observational parameters are taken from the telescope at [Blackrock Castle Observatory](www.bco.ie). This telescope has parameters given in the table below:
+\vskip 0.2in
 
 ```{r telescope, echo = FALSE, message = FALSE, warning = FALSE, tidy = FALSE}
-telescope <- data.frame(Parameters = c("Field of View in minutes",
-                                       "Resolution Limit in minutes",
-                                       "Dynamic Range in magnitudes"),
-                        Values = c(dec.size*60, resol*60, dynamic_range)) 
-telescope %>%  kable()
+telescope <- data.frame(
+  Parameters = c(
+    "Field of View in degrees",
+    "Resolution Limit in degrees",
+    "Dynamic Range in magnitudes",
+    "Colour Match Limit"
+  ),
+  Values = c(
+    round(dec.size * 1, 4),
+    round(resol * 1, 4),
+    round(dynamic_range, 4),
+    round(M, 4)
+  )
+)
+telescope %>%
+  kable() %>%
+  kable_styling()
 ```
 
 ## Candidate Zone
 
-The size of the FoV is, by equation 1 above, 
+The size of the FoV when corrected for shortening by declination is, by equation 1 above, 
 
-$$R^` = {\frac{R}{cos(Dec_c)}}$$
+\[
+R^` = {\frac{R}{cos(Dec_c)}}
+\]
 
-\center = `r round(dec.size*60, 3)` / cos(`r round(dec, 3)` $^{\circ}$) \center
+\[ 
+= `r format(round(dec.size, degree_decimals), nsmall = degree_decimals)` ^{\circ}/ cos(`r format(round(dec, degree_decimals), nsmall = degree_decimals)` ^{\circ}) 
+\]
 
-\center = `r signif(dec.size / cos(dec*pi/180), 3)` $^{\circ}$ \center
-
+\[
+ = `r signif(dec.size / cos(dec*pi/180), 5)` ^{\circ}
+\]
 
 The locus of the target is, by equation 2 above,
 
-\center $ `r round(ra - ra.size/2, 3)` $\leq$ RA $\leq$ `r round(ra + ra.size/2, 3)` $ \center
-\center `r round(dec - dec.size/2, 3)` $\leq$ Dec $\leq$ `r round(dec + dec.size/2, 3)` \center
+\[
+ `r format(round(ra - ra.size/2, degree_decimals), nsmall = degree_decimals)` ^{\circ} \leq RA \leq `r format(round(ra + ra.size/2, degree_decimals), nsmall = degree_decimals)` ^{\circ}
+\]
+ 
+\[
+ `r format(round(dec - dec.size/2, degree_decimals), nsmall = degree_decimals)` ^{\circ} \leq Dec \leq `r format(round(dec + dec.size/2, degree_decimals), nsmall = degree_decimals)` ^{\circ}
+\]
 
-The candidate zone is, by equation 3 above,
+The candidate zone as defined above is the area of sky within which reference stars can possibly be included in the same field of view as the target. This is four times the size of the FoV and is given by equation 3 above,
 
-\center `r round(ra - ra.size, 3)` $\leq$ RA $\leq$ `r round(ra + ra.size, 3)` \center
-\center `r round(dec - dec.size, 3)` $\leq$ Dec $\leq$ `r round(dec + dec.size, 3)` \center
+\[
+`r format(round(ra - ra.size, degree_decimals), nsmall = degree_decimals)` ^{\circ} \leq RA \leq `r format(round(ra + ra.size, degree_decimals), nsmall = degree_decimals)` ^{\circ}
+\]
+
+\[
+`r format(round(dec - dec.size, degree_decimals), nsmall = degree_decimals)` ^{\circ} \leq Dec \leq `r format(round(dec + dec.size, degree_decimals), nsmall = degree_decimals)` ^{\circ}
+\]
 
 \newpage
 
@@ -469,12 +549,13 @@ The candidate zone is, by equation 3 above,
 
 The potential reference stars are selected as follows:
 
-* Position: Within the Candidate Zone, SDSS records `r Object_Count` separate objects with clean photometry.
-* Magnitude: the reference star must be within the dynamic range, `r dynamic_range`, of the target's magnitude of `r round(r, 3)`. This leaves `r Magnitude_Count` potential references.
+* Position: Within the Candidate Zone, SDSS records `r Object_Count` separate objects with clean photometry, (@Aguado2018). These are downloaded by an SQL query run on the CAS database, release DR15
+* Magnitude: the reference star must be within the dynamic range, `r dynamic_range`, of the target's magnitude of `r round(r, 3)`, e.g. `r round(r, 3)-2` $\leq$ r $\leq$ `r round(r, 3) + 2`. This leaves `r Magnitude_Count` potential references.
 * Colour: the reference star must match the colour of the target to within a user-specified limit. In this case this means $g - r$  between `r round(g-r-M, 3)` and `r round(g-r+M, 3)` and $r - i$  between `r round(r-i-M, 3)` and `r round(r-i+M, 3)` This leaves `r Colour_Count` potential references.
-* Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit, in this case `r signif(resol*3600, 2)` arc seconds, (`r signif(resol*60, 2)` arc minutes). Any object this close to a potential reference star and with an r-band magnitude which is `r crowd_mag_limit` magnitudes greater than the potential reference or brighter will pollute the light from the potential reference star. This leaves `r object_count_crowding` potential references.
+* Resolvability: the reference star must be resolvable, i.e. no other star that would impact a brightness measurements within a user-specified resolution limit, in this case `r signif(resol*3600, 2)` arc seconds, (`r signif(resol, 3)` degrees). Any object this close to a potential reference star and with an r-band magnitude which is `r crowd_mag_limit` magnitudes greater than the potential reference or brighter will pollute the light from the potential reference star. This leaves `r object_count_crowding` potential references.
 
 These numbers are presented in the table below.
+\vskip 0.2in
 
 ```{r filter_table, echo = F}
 reference_numbers <- data.frame(filters = c("Position, in Field of View", 
@@ -487,116 +568,258 @@ reference_numbers <- data.frame(filters = c("Position, in Field of View",
                                             Colour_Count, 
                                             object_count_crowding,
                                             dim(B)[1]))
-kable(reference_numbers)
+kable(reference_numbers) %>%
+  kable_styling()
 ```
 
+\vskip 0.2in
+
+The table below gives the `r object_count_crowding` stars in the candidate zone along with the highlighted `r dim(B)[1]` stars in the final field of view. The target star itself is shown highlighted in green.
+
+\vskip 0.2in
+
+```{r reference_table_all, echo=F, message=F, warning=F}
+options(knitr.table.format = "latex")
+target_number <- A$objID == ObjID
+final_stars <- as.logical(A$objID %in% B$objID - target_number)
+
+A %>%
+  rownames_to_column(var = "ref.") %>% 
+  mutate_if(is.numeric, round, 4) %>% 
+  mutate_at(vars(starts_with("psfmag")), round, 2) %>% 
+  rename_at(vars(starts_with("psfmag")), funs(str_replace(., "psfmag_", ""))) %>%
+  kable() %>% 
+  kable_styling(full_width = F) %>%
+  row_spec(which(final_stars), bold = T, color = "white", background = "#D7261E") %>%
+  row_spec(which(target_number), bold = T, color = "white", background = "#0D4A05")
+
+```
+
+
+The table above also includes ratings for each star. This gives a measure of how close, spectrally, each reference star is to the target. This rating hasn't been optimised and is the subject of further research by our group, but for the purpose of this work was calculated as follows:
+\[
+rating =(1- \abs{\frac{\delta g - \delta r}{M}}) \times (1-\abs{\frac{\delta r - \delta i}{M}})
+\]
+
+Where $\delta r$ stand for the difference between the r-band magnitude for the target and the reference star and M is the colour match limit. Similarly for $\delta g$ and $\delta i$.
+
+For example, the star SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N) has g$_r$ = `r round(A$psfmag_g[corner1], 3)`, r$_r$ = `r round(A$psfmag_r[corner1], 3)`, and i$_r$ = `r round(A$psfmag_i[corner1], 3)`. This compares to the target magnitudes of g$_t$ = `r round(g, 3)`, r$_t$ = `r round(r, 3)`, and i$_t$ = `r round(i, 3)`.
+
+This gives:
+$\delta g$ = `r round(A$psfmag_g[corner1], 3)` - `r round(g, 3)` = `r round(A$psfmag_g[corner1] - g, 3)`.
+$\delta r$ = `r round(A$psfmag_r[corner1], 3)` - `r round(r, 3)` = `r round(A$psfmag_r[corner1] - r, 3)`.
+$\delta i$ = `r round(A$psfmag_i[corner1], 3)` - `r round(i, 3)` = `r round(A$psfmag_i[corner1] - i, 3)`.
+Thus rating = (1 - (|`r round(A$psfmag_g[corner1] - g, 3)` - `r round(A$psfmag_r[corner1] - r, 3)`)/`r M `|) $\times$ (1 - (|`r round(A$psfmag_r[corner1] - r, 3)` - `r round(A$psfmag_i[corner1] - i, 3)`)/`r M `|)
+= (`r 1 - abs(round(A$psfmag_g[corner1] - g - A$psfmag_r[corner1] + r, 3)/M)`) $\times$ (`r 1 - abs(round(A$psfmag_r[corner1] - r - A$psfmag_i[corner1] + i, 3)/M)`)
+
+= `r round((1 - abs(A$psfmag_g[corner1] - g - A$psfmag_r[corner1] + r)/M) * (1 - abs(A$psfmag_r[corner1] - r - A$psfmag_i[corner1] + i)/M), 3)`
+
+\newpage
+
+## Identifying the Effective Locus for each Candidate Reference Star
+\vskip 0.2in
+From expression 8, the cornerpoints for a given reference can be calculated:
+\[
+RA_r < RA_t => RA_c = RA_r + R'
+\]
+
+\[
+Dec_r < Dec_t => Dec_c = Dec_r + S
+\]
+
+For reference SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N)
+\vskip 0.2in
+`r  format(round(A$ra[corner1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ `r ifelse(A$ra[corner1]>ra, print(">"), print("<"))` `r format(round(ra, degree_decimals), nsmall = degree_decimals)`$^{\circ}$
+=> RA~c,`r rownames(A)[corner1]`~ =  `r  format(round(A$ra[corner1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ `r ifelse(A$ra[corner1]>ra, print("-"), print("+"))` `r format(round(ra.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$  = `r  format(round(ifelse(A$ra[corner1]>ra, A$ra[corner1] - ra.size/2, A$ra[corner1] + ra.size/2), degree_decimals), nsmall = degree_decimals)`$^{\circ}$
+\vskip 0.2in
+`r  format(round(A$dec[corner1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ `r ifelse(A$dec[corner1]>dec, print(">"), print("<"))` `r format(round(dec, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ 
+=> Dec~c,`r rownames(A)[corner1]`~ =  `r  format(round(A$dec[corner1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ `r ifelse(A$dec[corner1]>dec, print("-"), print("+"))` `r round(dec.size/2, 4) `$^{\circ}$  = `r  format(round(ifelse(A$dec[corner1]>dec, A$dec[corner1] - dec.size/2, A$dec[corner1] + dec.size/2), degree_decimals), nsmall = degree_decimals)`$^{\circ}$
+
+\vskip 0.2in
+From Expression 9:
+RA~r,`r rownames(A)[corner1]`~ `r ifelse(A$ra[corner1]>ra, print(">"), print("<"))` RA~t~ =>  DirDec~`r rownames(A)[corner1]`~ = `r ifelse(A$ra[corner1]<ra, print("-"), print("+"))`ive
+
+Dec~r,`r rownames(A)[corner1]`~ `r ifelse(A$dec[corner1]>dec, print(">"), print("<"))` Dec~t~ =>  DirRA~`r rownames(A)[corner1]`~ = `r ifelse(A$dec[corner1]<dec, print("-"), print("+"))`ive
+
+\vskip 0.2in
+For reference SDSS`r A$objID[corner1]` (Star `r rownames(A)[corner1]` on figure N)
+\vskip 0.2in
+`r  format(round(A$ra[corner1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ `r ifelse(A$ra[corner1]>ra, print(">"), print("<"))` `r format(round(ra, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ 
+=> DirDec~`r rownames(A)[corner1]`~ = `r ifelse(A$ra[corner1]<ra, print("-"), print("+"))`ive,   
+
+`r  format(round(A$dec[corner1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ `r ifelse(A$dec[corner1]>dec, print(">"), print("<"))` `r format(round(dec, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ 
+=> DirRA~`r rownames(A)[corner1]`~ = `r ifelse(A$dec[corner1]<dec, print("-"), print("+"))`ive
+
+
+\vskip 0.2in
+Repeating this calculation for  SDSS`r A$objID[corner2]` (Star `r rownames(A)[corner2]` on figure N) gives 
+
+RA~c,`r rownames(A)[corner2]`~ = `r  ifelse(A$ra[corner2]>ra, format(round(A$ra[corner2] - ra.size/2, degree_decimals), nsmall = degree_decimals), format(round(A$ra[corner2] + ra.size/2, degree_decimals), nsmall = degree_decimals)) `$^{\circ}$, 
+Dec~c,`r rownames(A)[corner2]`~ = `r  ifelse(A$dec[corner2]>dec, format(round(A$dec[corner2] - dec.size/2, degree_decimals), nsmall = degree_decimals), format(round(A$dec[corner2] + dec.size/2, degree_decimals), nsmall = degree_decimals)) `$^{\circ}$, 
+\vskip 0.2in
+DirDec~`r rownames(A)[corner2]`~ = `r ifelse(A$ra[corner2]<ra, print("-"), print("+"))`ive, 
+
+DirRa~`r rownames(A)[corner2]`~ = `r ifelse(A$dec[corner2]<dec, print("-"), print("+"))`ive.  
+
+\vskip 0.2in
+
+## Identifying and Scoring Points of Intersection and identifying the pointing.
+
+We can compare these two effective loci to see if they intersect to form a valid PoI.
+\vskip 0.2in
+From Expression 10:
+DirRA~`r rownames(A)[corner1]`~ = `r ifelse(A$ra[corner1]>ra, print("-"), print("+"))`ive, DirDec~`r rownames(A)[corner2]`~=`r ifelse(A$ra[corner2]>ra, print("-"), print("+"))`ive
+RA~r,`r rownames(A)[corner1]`~ `r ifelse(A$ra[corner1]>A$ra[corner2], print(">"), print("<"))` RA~r,`r rownames(A)[corner2]`~ and Dec~r,`r rownames(A)[corner1]`~ `r ifelse(A$dec[corner1]>A$dec[corner2], print(">"), print("<"))` Dec~r,`r rownames(A)[corner2]`~
+
+PoI exist at (RA, Dec) =  (`r format(round(int.pts$int_ra[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$,  `r format(round(int.pts$int_dec[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$)
+\vskip 0.2in
+From Expression 2, the FoV centred on the PoI (`r format(round(int.pts$int_ra[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$,  `r format(round(int.pts$int_dec[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$) can be calculated to be:
+
+$$RA_c - {\frac{R^`}{2}} \leq RA \leq RA_c + {\frac{R^`}{2}} $$
+
+$$Dec_c - {\frac{S}{2}} \leq Dec \leq Dec_c + {\frac{S}{2}}$$
+
+`r format(round(int.pts$int_ra[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ - `r format(round(ra.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ $\leq$ RA $\leq$ `r format(round(int.pts$int_ra[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ + `r format(round(ra.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ 
+\vskip 0.2in
+`r format(round(int.pts$int_dec[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ - `r format(round(dec.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ $\leq$ Dec $\leq$ `r format(round(int.pts$int_dec[1], degree_decimals), nsmall = degree_decimals)`$^{\circ}$ + `r format(round(dec.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ 
+\vskip 0.2in
+`r format(round(int.pts$int_ra[1] - ra.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ $\leq$ RA $\leq$ `r format(round(int.pts$int_ra[1] + ra.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ 
+\vskip 0.2in
+`r format(round(int.pts$int_dec[1] - dec.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ $\leq$ Dec $\leq$ `r format(round(int.pts$int_dec[1] + dec.size/2, degree_decimals), nsmall = degree_decimals)`$^{\circ}$
 \newpage
 
 The locus associated with each of these `r object_count_crowding` potential references is identified and the Points of Intersection associated with these locii are calculated. This leads to the situation shown in the diagram below
 
-```{r candidate_plot, echo=F, message=F, warning=F}
-int.pts %>% ggplot(aes(x = -int_ra, y = int_dec)) + 
-  geom_point(fill = "#000000", colour = "#000000", size = 0.8) + #intersection points in black
-  geom_tile(data = data.frame(ra=ra, dec=dec), 
-            aes(x=-ra, y=dec), 
+```{r candidate_plot, echo=F, message=F, warning=F, fig.height=12}
+example_ints <- A[c(corner1, corner2),]
+
+loci_vertical_example <- data.frame(x1 = ifelse(example_ints$ra < target$ra, example_ints$ra + ra.size/2, example_ints$ra - ra.size/2), 
+                            x2 = ifelse(example_ints$ra < target$ra, example_ints$ra + ra.size/2, example_ints$ra - ra.size/2),
+                            y1 = pmax(example_ints$dec - dec.size/2, target$dec - dec.super),
+                            y2 = pmin(example_ints$dec + dec.size/2, target$dec + dec.super))
+
+loci_vertical <- data.frame(x1 = ifelse(A$ra < target$ra, A$ra + ra.size/2, A$ra - ra.size/2), 
+                            x2 = ifelse(A$ra < target$ra, A$ra + ra.size/2, A$ra - ra.size/2),
+                            y1 = pmax(A$dec - dec.size/2, target$dec - dec.super),
+                            y2 = pmin(A$dec + dec.size/2, target$dec + dec.super))
+
+loci_horizontal_example <- data.frame(x1 = pmax(example_ints$ra - ra.size/2, target$ra - ra.super),
+                              x2 = pmin(example_ints$ra + ra.size/2, target$ra + ra.super),
+                              y1 = ifelse(example_ints$dec < target$dec, example_ints$dec + dec.size/2, example_ints$dec - dec.size/2),
+                              y2 = ifelse(example_ints$dec < target$dec, example_ints$dec + dec.size/2, example_ints$dec - dec.size/2))
+
+loci_horizontal <- data.frame(x1 = pmax(A$ra - ra.size/2, target$ra -ra.super),
+                              x2 = pmin(A$ra + ra.size/2, target$ra + ra.super),
+                              y1 = ifelse(A$dec < target$dec, A$dec + dec.size/2, A$dec - dec.size/2),
+                              y2 = ifelse(A$dec < target$dec, A$dec + dec.size/2, A$dec - dec.size/2))
+
+int.pts %>% ggplot(aes(x = int_ra, y = int_dec)) + 
+  geom_tile(data = target, 
+            aes(x=ra, y=dec), 
             width=2*ra.size, 
             height=2*dec.size, 
-            alpha=0, size = 1.5,
-            alpha = 0.5,
+            alpha=0, size = 2,
             colour = "#009E73") + ### candidate zone in green
-  geom_point(data = A, aes(-ra, dec), colour = "red") + ### potential references in red
-  geom_tile(data = A, aes(-ra, dec), 
-            width=ra.size, 
-            height=dec.size, 
-            colour="blue", 
-            alpha=0) + ### locii in blue
-  geom_point(data = data.frame(ra=ra, dec=dec), 
-             aes(-ra, dec), size=4, 
+  geom_point(data = A, aes(ra, dec), colour = "blue") + ### potential references in blue
+  geom_point(data = example_ints, aes(ra, dec), colour = "red") + ### potential references in red
+  geom_segment(data = loci_horizontal, aes(x = x1, y = y1, xend = x2, yend = y2),
+               colour="blue", size = 0.5) + ### locii in blue
+  geom_segment(data = loci_vertical, aes(x = x1, y = y1, xend = x2, yend = y2),
+               colour="blue", size = 0.5) + ### locii in blue
+  geom_segment(data = loci_horizontal_example, aes(x = x1, y = y1, xend = x2, yend = y2),
+               colour="red", size = 0.7) + ### example locii in red
+  geom_segment(data = loci_vertical_example, aes(x = x1, y = y1, xend = x2, yend = y2),
+               colour="red", size = 0.7) + ### example locii in red
+  geom_point(data = target, 
+             aes(ra, dec), size=4, 
              colour="#009E73", fill = "#009E73") + ### target in green
-  labs(caption="Plot Showing the Target (Green Circle), \nPotential Reference Stars (Red Circles), \nAssociated Locii (Blue Squares), \nand Points of Intersection (Black Dots). \nThe Candidate Zone is Shown by the Green Square") + 
+  geom_point(data = int.pts[-1,], fill = "#000000", colour = "#000000", size = 1.5) + #intersection points in black
+  geom_point(data = int.pts[1,], 
+             aes(int_ra, int_dec), size = 3,shape = 13, 
+             colour="red") + ### key intersection point
+  labs(caption="Plot Showing the Target (Green Circle), 
+       \nPotential Reference Stars (Blue Circles), 
+       \nAssociated Locii (Blue Lines), 
+       \nand Points of Intersection (Black Dots). 
+       \nThe Candidate Zone is Shown by the Green Square.
+       \nThe Two Reference Stars, and their Loci, used in the Example Presented here are in Red
+       \nThe Example Point of Intersection is shown by the Red Circle") + 
   ylab("Dec") +
   xlab("RA") +
-  theme_minimal()
+  xlim(target$ra+ra.super, target$ra-ra.super) +
+  ylim(target$dec-dec.super, target$dec + dec.super) +
+  coord_fixed() +
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 15)) +
+  theme(axis.title = element_text(size = 20)) + 
+  theme(aspect.ratio = 1)
 ```
 
-After checking different fields of view, a pointing with RA = `r round(final_pointing$ra, 3)` and DEC = `r round(final_pointing$dec, 3)` included both the target and `r dim(B)[1]` reference stars. This pointing is calculated to have a score of `r signif(final_pointing$score, 3)`
+All these `r dim(int.pts)[1]` points of intersection are checked in turn as potential pointings. For each one, a field of view is constructed and all the potential reference stars within each one are identified. This is used to calculate a score for each point of intersection. For the star, SDSS`r ObjID`, an optimised pointing was thus discovered with RA = `r format(round(final_pointing$ra, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ and DEC = `r format(round(final_pointing$dec, degree_decimals), nsmall = degree_decimals)`$^{\circ}$ The field of view centered on this pointing included both the target and `r dim(B)[1]` reference stars. This pointing is calculated to have a score of `r signif(final_pointing$score, 3)`
 \newpage
 
-The SQL query to download potential reference stars from SDSS is given below. This SQL query is run on the CAS database, release DR15, of SDSS. Note the flags to give clean photometry (@Aguado2018)
-\vskip 0.2in
-\noindent `r  mySqlQuery1`
-\vskip 0.2in
-
-
-A table with the reference stars in the final field of view is given below:
-
-```{r reference_table, warning = F, message = F, echo = F}
-B %>% 
-  mutate_if(is.numeric, round, 3) %>% 
-#  select(-objID) %>% 
-  rename_at(vars(starts_with("psfmag")), funs(str_replace(., "psfmag", "mag"))) %>% 
-  kable()
-```
-
-```{r locus_plot, echo = FALSE, message = FALSE, warning = FALSE}
-extra = 0.02
+```{r locus_plot, echo=FALSE, fig.height=12, message=FALSE, warning=FALSE}
+extra = 0.01
+dec.super <- dec.size
+ra.super <- ra.size
 mysubtitle <- str_glue("The Field of View for SDSS{ObjID}, showing the star itself in black,
                        \nthe telescope pointing in green, 
                        \nand the discovered reference stars graded by their ratings.
                        \nNote that the RA runs in the direction consistent with SDSS")
-B %>% ggplot(aes(x = ra, y = dec)) +
-  geom_point(aes(color = -ratings), size = 3) +
-  geom_tile(
-    data = final_pointing,
-    aes(x = -ra, y = dec),
-    width = ra.size,
-    height = dec.size,
-    alpha = 0,
-    colour = "black"
-  ) +
+B[-which(B$objID == ObjID),] %>% ggplot(aes(x = ra, y = dec)) +
+  geom_point(aes(color = ratings), size = 3) +
+  scale_colour_gradient(low = "lightblue", high = "darkblue") +
   geom_text(
-    aes(label = rownames(B)),
+    aes(label = rownames(B[-which(B$objID == ObjID),])),
     size = 4,
-    colour = "red",
+    colour = "darkblue",
     nudge_x = 0.005,
     nudge_y = 0.005
   ) +
   geom_point(
     data = final_pointing,
-    size = 4,
-    colour = "darkgreen",
+    size = 3,
+    stroke = 2,
+    colour = "darkred",
     shape = 1
   ) +
   geom_point(data = target,
-             aes(x = -ra, y = dec), color = "black") +
+             aes(x = ra, y = dec), color = "darkgreen", size = 4.5) +
   geom_text(
     data = final_pointing,
     label = "Pointing",
-    col = "darkgreen",
-    nudge_x = 0.005,
-    nudge_y = 0.005
+    col = "darkred",
+    nudge_x = 0.007,
+    nudge_y = 0.007,
+    fontface='bold'
   ) +
   geom_text(
     data = target,
     label = "Target",
-    col = "black",
-    nudge_x = -0.005,
-    nudge_y = -0.005
+    col = "darkgreen",
+    fontface='bold',
+    nudge_x = -0.007,
+    nudge_y = -0.007
   ) +
   xlim(final_pointing$ra + ra.size / 2 + extra,
        final_pointing$ra - ra.size / 2 - extra) +
-  geom_rect(
-    mapping = aes(
-      xmin = final_pointing$ra + ra.super / 2,
-      xmax = final_pointing$ra - ra.super / 2,
-      ymin = final_pointing$dec - dec.super / 2,
-      ymax = final_pointing$dec + dec.super / 2
-    ),
-    color = "firebrick4",
-    alpha = 0
+  annotate(geom = "tile", 
+           x = final_pointing$ra, 
+           y = final_pointing$dec, 
+           width = ra.size,
+           height = dec.size,
+           colour = "firebrick4", 
+           alpha = 0,
+           size = 1.2
   ) +
   labs(subtitle = mysubtitle) +
-  theme_minimal() 
+  ylab("Dec") +
+  xlab("RA") +
+  coord_fixed() +
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 15)) +
+  theme(axis.title = element_text(size = 20)) + 
+  theme(aspect.ratio = 1)
 ```
 
 \newpage
